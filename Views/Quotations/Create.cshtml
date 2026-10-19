@@ -1,0 +1,305 @@
+@model ARROW_ARO_RICE.Models.Quotation
+@{
+    ViewData["Title"] = "Create Export Quotation / Proforma";
+    Layout = "_AdminLayout";
+    var customers = ViewBag.Customers as List<ARROW_ARO_RICE.Models.Customer> ?? new List<ARROW_ARO_RICE.Models.Customer>();
+    var products = ViewBag.Products as List<ARROW_ARO_RICE.Models.Product> ?? new List<ARROW_ARO_RICE.Models.Product>();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary mb-2">&larr; Back to Quotations</a>
+        <h4 class="font-serif text-dark mb-0">Export Quotation & Proforma Builder</h4>
+    </div>
+</div>
+
+<form asp-action="Create" method="post" id="quotationForm">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="InquiryId" />
+
+    <div class="row g-4">
+        <!-- Buyer & Commercial Details -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+                <h5 class="font-serif text-dark mb-3">1. International Buyer Coordinates</h5>
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Select Existing Buyer (Optional)</label>
+                        <select asp-for="CustomerId" class="form-select" id="customerSelect" onchange="fillCustomer(this)">
+                            <option value="">-- Choose Registered Buyer --</option>
+                            @foreach (var c in customers)
+                            {
+                                <option value="@c.Id" data-name="@c.CompanyName" data-email="@c.Email" data-country="@c.Country" data-port="@c.PreferredDestinationPort" selected="@(Model.CustomerId == c.Id)">
+                                    @c.CompanyName (@c.Country)
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="CustomerName" class="form-label small fw-semibold">Buyer / Importer Name *</label>
+                        <input asp-for="CustomerName" class="form-control" id="buyerName" required />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="CustomerEmail" class="form-label small fw-semibold">Buyer Email Address *</label>
+                        <input asp-for="CustomerEmail" class="form-control" id="buyerEmail" required />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="CustomerCountry" class="form-label small fw-semibold">Destination Country *</label>
+                        <input asp-for="CustomerCountry" class="form-control" id="buyerCountry" required />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="PortOfLoading" class="form-label small fw-semibold">Port of Loading (India) *</label>
+                        <input asp-for="PortOfLoading" class="form-control" required />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="DestinationPort" class="form-label small fw-semibold">Port of Destination (Discharge) *</label>
+                        <input asp-for="DestinationPort" class="form-control" id="buyerPort" placeholder="e.g. Jebel Ali Port (AEJEA)" required />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="IncoTerm" class="form-label small fw-semibold">IncoTerm</label>
+                        <select asp-for="IncoTerm" class="form-select">
+                            <option value="CIF" selected>CIF (Cost, Insurance & Freight)</option>
+                            <option value="FOB">FOB (Mundra / Nhava Sheva)</option>
+                            <option value="CFR">CFR (Cost & Freight)</option>
+                            <option value="EXW">EXW (Mill Gate, Karnal)</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="Currency" class="form-label small fw-semibold">Trading Currency</label>
+                        <select asp-for="Currency" class="form-select">
+                            <option value="USD" selected>USD ($)</option>
+                            <option value="EUR">EUR (€)</option>
+                            <option value="AED">AED (AED)</option>
+                            <option value="INR">INR (₹)</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="ValidUntil" class="form-label small fw-semibold">Quotation Validity</label>
+                        <input asp-for="ValidUntil" class="form-control" type="date" required />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Line Items Builder -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="font-serif text-dark mb-0">2. Rice Consignment Line Items</h5>
+                    <button type="button" class="btn btn-sm btn-outline-success" onclick="addLineItem()">
+                        <i class="fa-solid fa-plus me-1"></i> Add Variety
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle small" id="itemsTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 25%;">Rice Variety</th>
+                                <th style="width: 20%;">Specifications</th>
+                                <th style="width: 15%;">Volume (MT)</th>
+                                <th style="width: 15%;">Price / MT</th>
+                                <th style="width: 15%;">Packaging</th>
+                                <th style="width: 10%;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsBody">
+                            @if (Model.Items.Any())
+                            {
+                                var idx = 0;
+                                foreach (var itm in Model.Items)
+                                {
+                                    <tr>
+                                        <td>
+                                            <input type="hidden" name="items[@idx].ProductId" value="@itm.ProductId" />
+                                            <input type="text" name="items[@idx].ProductName" class="form-control form-control-sm" value="@itm.ProductName" required />
+                                        </td>
+                                        <td>
+                                            <input type="text" name="items[@idx].SpecificationsSummary" class="form-control form-control-sm" value="@itm.SpecificationsSummary" />
+                                        </td>
+                                        <td>
+                                            <input type="number" step="0.5" name="items[@idx].QuantityMT" class="form-control form-control-sm item-qty" value="@itm.QuantityMT" oninput="calcTotals()" required />
+                                        </td>
+                                        <td>
+                                            <input type="number" step="10" name="items[@idx].UnitPricePerMT" class="form-control form-control-sm item-rate" value="@itm.UnitPricePerMT" oninput="calcTotals()" required />
+                                        </td>
+                                        <td>
+                                            <input type="text" name="items[@idx].Packaging" class="form-control form-control-sm" value="@itm.Packaging" />
+                                        </td>
+                                        <td class="fw-bold text-dark item-total">
+                                            $@itm.TotalAmount.ToString("N0")
+                                        </td>
+                                    </tr>
+                                    idx++;
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td>
+                                        <select class="form-select form-select-sm" onchange="selectProductPreset(this, 0)">
+                                            <option value="">-- Preset Variety --</option>
+                                            @foreach (var p in products)
+                                            {
+                                                <option value="@p.Id" data-name="@p.Name" data-specs="@p.AverageLengthMm mm AGL, @p.MoistureMaxPercent% Moisture" data-price="@p.DefaultFobPricePerMT" data-pkg="@p.PackagingOptions">
+                                                    @p.Name
+                                                </option>
+                                            }
+                                        </select>
+                                        <input type="hidden" name="items[0].ProductId" id="prodId_0" />
+                                        <input type="text" name="items[0].ProductName" id="prodName_0" class="form-control form-control-sm mt-1" placeholder="Product name" required />
+                                    </td>
+                                    <td>
+                                        <input type="text" name="items[0].SpecificationsSummary" id="prodSpecs_0" class="form-control form-control-sm" placeholder="AGL, Moisture..." />
+                                    </td>
+                                    <td>
+                                        <input type="number" step="0.5" name="items[0].QuantityMT" class="form-control form-control-sm item-qty" value="25" oninput="calcTotals()" required />
+                                    </td>
+                                    <td>
+                                        <input type="number" step="10" name="items[0].UnitPricePerMT" id="prodPrice_0" class="form-control form-control-sm item-rate" value="1150" oninput="calcTotals()" required />
+                                    </td>
+                                    <td>
+                                        <input type="text" name="items[0].Packaging" id="prodPkg_0" class="form-control form-control-sm" value="50 Kg PP Bags" />
+                                    </td>
+                                    <td class="fw-bold text-dark item-total">
+                                        $28,750
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Export Terms & Bank Details -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                <h5 class="font-serif text-dark mb-3">3. Export Terms & Statutory Bank Coordinates</h5>
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="PaymentTerms" class="form-label small fw-semibold">Payment Terms *</label>
+                        <input asp-for="PaymentTerms" class="form-control form-control-sm" required />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="InspectionAgency" class="form-label small fw-semibold">Pre-Shipment Inspection Agency *</label>
+                        <input asp-for="InspectionAgency" class="form-control form-control-sm" required />
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="TermsAndConditions" class="form-label small fw-semibold">Standard Export Terms & Conditions</label>
+                        <textarea asp-for="TermsAndConditions" class="form-control form-control-sm" rows="3"></textarea>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="BankDetails" class="form-label small fw-semibold">Official SWIFT Bank Coordinates</label>
+                        <textarea asp-for="BankDetails" class="form-control form-control-sm" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Summary & Financial Calculations -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white sticky-top" style="top: 100px;">
+                <h5 class="font-serif text-dark mb-3">Quotation Commercial Summary</h5>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Cargo Subtotal (USD)</label>
+                    <input asp-for="SubTotal" class="form-control fw-bold" id="subTotalInput" readonly />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Ocean Freight Charges (USD)</label>
+                    <input asp-for="FreightCharges" class="form-control" id="freightInput" type="number" step="50" value="2200" oninput="calcTotals()" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Marine Insurance (USD)</label>
+                    <input asp-for="InsuranceCharges" class="form-control" id="insuranceInput" type="number" step="25" value="350" oninput="calcTotals()" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Export Handling / Other (USD)</label>
+                    <input asp-for="OtherCharges" class="form-control" id="otherInput" type="number" step="25" value="150" oninput="calcTotals()" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Commercial Discount (USD)</label>
+                    <input asp-for="Discount" class="form-control" id="discountInput" type="number" step="50" value="0" oninput="calcTotals()" />
+                </div>
+
+                <hr />
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <span class="fs-6 fw-bold text-dark">Grand Total (CIF):</span>
+                    <span class="fs-4 fw-bold text-success" id="grandTotalDisplay">$31,450</span>
+                    <input type="hidden" asp-for="GrandTotal" id="grandTotalInput" value="31450" />
+                </div>
+
+                <button type="submit" class="btn btn-gold btn-lg w-100">
+                    <i class="fa-solid fa-file-invoice-dollar me-2"></i> Save & Generate Proforma
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+<script>
+    function fillCustomer(select) {
+        var opt = select.options[select.selectedIndex];
+        if (!opt.value) return;
+        document.getElementById('buyerName').value = opt.getAttribute('data-name') || '';
+        document.getElementById('buyerEmail').value = opt.getAttribute('data-email') || '';
+        document.getElementById('buyerCountry').value = opt.getAttribute('data-country') || '';
+        document.getElementById('buyerPort').value = opt.getAttribute('data-port') || '';
+    }
+
+    function selectProductPreset(select, idx) {
+        var opt = select.options[select.selectedIndex];
+        if (!opt.value) return;
+        document.getElementById('prodId_' + idx).value = opt.value;
+        document.getElementById('prodName_' + idx).value = opt.getAttribute('data-name');
+        document.getElementById('prodSpecs_' + idx).value = opt.getAttribute('data-specs');
+        document.getElementById('prodPrice_' + idx).value = opt.getAttribute('data-price');
+        document.getElementById('prodPkg_' + idx).value = opt.getAttribute('data-pkg');
+        calcTotals();
+    }
+
+    function calcTotals() {
+        var rows = document.querySelectorAll('#itemsBody tr');
+        var subtotal = 0;
+        rows.forEach(function (row) {
+            var qty = parseFloat(row.querySelector('.item-qty')?.value || 0);
+            var rate = parseFloat(row.querySelector('.item-rate')?.value || 0);
+            var total = qty * rate;
+            var totalEl = row.querySelector('.item-total');
+            if (totalEl) totalEl.innerText = '$' + total.toLocaleString();
+            subtotal += total;
+        });
+
+        document.getElementById('subTotalInput').value = subtotal;
+
+        var freight = parseFloat(document.getElementById('freightInput').value || 0);
+        var insurance = parseFloat(document.getElementById('insuranceInput').value || 0);
+        var other = parseFloat(document.getElementById('otherInput').value || 0);
+        var discount = parseFloat(document.getElementById('discountInput').value || 0);
+
+        var grand = subtotal + freight + insurance + other - discount;
+        document.getElementById('grandTotalDisplay').innerText = '$' + grand.toLocaleString();
+        document.getElementById('grandTotalInput').value = grand;
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        calcTotals();
+    });
+</script>
+}

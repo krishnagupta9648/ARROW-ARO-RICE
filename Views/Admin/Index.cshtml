@@ -1,0 +1,364 @@
+@model ARROW_ARO_RICE.Models.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Executive Export & CRM Dashboard";
+    Layout = "_AdminLayout";
+}
+
+<!-- Top 8 KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="kpi-label">Total Inquiries (RFQ)</div>
+                <div class="kpi-icon-box bg-primary bg-opacity-10 text-primary">
+                    <i class="fa-solid fa-envelope-open-text"></i>
+                </div>
+            </div>
+            <div class="kpi-value text-primary">@Model.TotalInquiries</div>
+            <div class="small text-muted"><i class="fa-solid fa-arrow-trend-up text-success me-1"></i> Active Leads: <strong class="text-dark">@Model.ActiveLeads</strong></div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="kpi-label">Quotations Pending</div>
+                <div class="kpi-icon-box bg-warning bg-opacity-15 text-warning">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                </div>
+            </div>
+            <div class="kpi-value text-warning">@Model.QuotationsPending</div>
+            <div class="small text-muted"><a asp-controller="Quotations" asp-action="Index" class="text-decoration-none text-muted">Review proforma quotes &rarr;</a></div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="kpi-label">Confirmed Orders</div>
+                <div class="kpi-icon-box bg-success bg-opacity-10 text-success">
+                    <i class="fa-solid fa-box-archive"></i>
+                </div>
+            </div>
+            <div class="kpi-value text-success">@Model.ConfirmedOrders</div>
+            <div class="small text-muted">In processing, packing & transit</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="kpi-label">Shipments In Transit</div>
+                <div class="kpi-icon-box bg-info bg-opacity-10 text-info">
+                    <i class="fa-solid fa-ship"></i>
+                </div>
+            </div>
+            <div class="kpi-value text-info">@Model.ShipmentsInTransit</div>
+            <div class="small text-muted"><a asp-controller="Shipments" asp-action="Index" class="text-decoration-none text-muted">Track maritime vessels &rarr;</a></div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="kpi-label">Total Export Volume</div>
+                <div class="kpi-icon-box bg-success bg-opacity-10 text-success">
+                    <i class="fa-solid fa-weight-hanging"></i>
+                </div>
+            </div>
+            <div class="kpi-value text-dark">@Model.TotalSalesVolumeMT.ToString("N0") <span class="fs-6 fw-normal text-muted">MT</span></div>
+            <div class="small text-muted">Shipped & booked consignments</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="kpi-label">Export Sales Revenue</div>
+                <div class="kpi-icon-box bg-warning bg-opacity-15 text-warning">
+                    <i class="fa-solid fa-dollar-sign"></i>
+                </div>
+            </div>
+            <div class="kpi-value text-dark">$@Model.TotalSalesRevenueUsd.ToString("N0")</div>
+            <div class="small text-muted">Gross export contract value</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="kpi-label">Outstanding Receivables</div>
+                <div class="kpi-icon-box bg-danger bg-opacity-10 text-danger">
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                </div>
+            </div>
+            <div class="kpi-value text-danger">$@Model.TotalReceivablesUsd.ToString("N0")</div>
+            <div class="small text-muted">Balance against B/L scans & LCs</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="kpi-label">Warehouse Stock Available</div>
+                <div class="kpi-icon-box bg-secondary bg-opacity-10 text-secondary">
+                    <i class="fa-solid fa-warehouse"></i>
+                </div>
+            </div>
+            <div class="kpi-value text-dark">@Model.TotalStockAvailableMT.ToString("N0") <span class="fs-6 fw-normal text-muted">MT</span></div>
+            <div class="small text-muted">Across Karnal, Mundra & JNPT</div>
+        </div>
+    </div>
+</div>
+
+@if (User.IsInRole("Admin"))
+{
+    <div class="card border-0 shadow-sm rounded-3 mb-4 bg-white border-start border-4 border-success">
+        <div class="card-body py-2 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 py-2 px-3 fw-semibold">
+                    <i class="fa-solid fa-database me-1"></i> Database Engine: SQLite 3 (Connected)
+                </span>
+                <span class="small text-muted">
+                    19 Relational Tables &bull; Auto-Seeded Enterprise Dataset &bull; MySQL & SQL Server scripts ready
+                </span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <a asp-controller="Database" asp-action="Index" class="btn btn-sm btn-outline-success py-1 px-3">
+                    <i class="fa-solid fa-sliders me-1"></i> Database Studio & SQL Hub &rarr;
+                </a>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Charts Section -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="font-serif text-dark mb-0"><i class="fa-solid fa-chart-pie text-success me-2"></i> Inquiries by Destination Country</h5>
+                <span class="badge bg-light text-muted border">Geographic Demand</span>
+            </div>
+            <div style="height: 250px;">
+                <canvas id="countryChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="font-serif text-dark mb-0"><i class="fa-solid fa-chart-column text-primary me-2"></i> Top Exported Varieties (MT)</h5>
+                <span class="badge bg-light text-muted border">Product Volume</span>
+            </div>
+            <div style="height: 250px;">
+                <canvas id="varietyChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Low Stock Alerts (If Any) -->
+@if (Model.LowStockAlerts.Any())
+{
+    <div class="alert alert-warning border-0 shadow-sm rounded-3 mb-4 d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-2">
+            <i class="fa-solid fa-triangle-exclamation fs-4 text-warning"></i>
+            <div>
+                <strong>Inventory Reorder Warning:</strong> @Model.LowStockAlerts.Count warehouse stock lots have fallen below the configured reorder threshold.
+            </div>
+        </div>
+        <a asp-controller="Inventory" asp-action="Index" class="btn btn-sm btn-dark">View Stock Ledger</a>
+    </div>
+}
+
+<!-- Recent Inquiries & Live Shipments Row -->
+<div class="row g-4 mb-4">
+    <!-- Recent Inquiries -->
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="font-serif text-dark mb-0"><i class="fa-solid fa-inbox text-warning me-2"></i> Recent Buyer Inquiries (RFQ)</h5>
+                <a asp-controller="Inquiries" asp-action="Index" class="btn btn-sm btn-outline-dark">View All</a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle small mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Inquiry No</th>
+                            <th>Buyer</th>
+                            <th>Country</th>
+                            <th>Variety</th>
+                            <th>Volume</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var inq in Model.RecentInquiries)
+                        {
+                            <tr>
+                                <td class="fw-bold">@inq.InquiryNumber</td>
+                                <td>
+                                    <div>@(string.IsNullOrEmpty(inq.CompanyName) ? inq.FullName : inq.CompanyName)</div>
+                                    <div class="text-muted" style="font-size: 0.72rem;">@inq.Email</div>
+                                </td>
+                                <td><span class="badge bg-light text-dark border">@inq.Country</span></td>
+                                <td class="small text-truncate" style="max-width: 140px;">@inq.RiceVariety</td>
+                                <td class="fw-bold">@inq.QuantityMT MT</td>
+                                <td>
+                                    <span class="badge-status badge-@inq.Status.ToString().ToLower()">
+                                        @inq.Status
+                                    </span>
+                                </td>
+                                <td>
+                                    <a asp-controller="Inquiries" asp-action="Details" asp-route-id="@inq.Id" class="btn btn-xs btn-outline-success">
+                                        Open
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active High-Seas Shipments -->
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="font-serif text-dark mb-0"><i class="fa-solid fa-ship text-info me-2"></i> Active Export Shipments</h5>
+                <a asp-controller="Shipments" asp-action="Index" class="btn btn-sm btn-outline-dark">Track All</a>
+            </div>
+
+            @if (!Model.ActiveShipments.Any())
+            {
+                <div class="text-center py-4 text-muted small">No active export shipments currently in transit.</div>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var ship in Model.ActiveShipments)
+                    {
+                        <div class="p-3 rounded-3 border bg-light">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <strong class="text-dark">@ship.ShipmentNumber</strong>
+                                <span class="badge-status badge-intransit">@ship.CurrentMilestone</span>
+                            </div>
+                            <div class="small text-muted mb-2">
+                                <i class="fa-solid fa-anchor text-secondary me-1"></i> @ship.ShippingLine | <strong>@ship.VesselName (@ship.VoyageNumber)</strong>
+                            </div>
+                            <div class="small text-dark mb-2">
+                                <strong>Route:</strong> @ship.PortOfLoading &rarr; <span class="text-success fw-bold">@ship.PortOfDestination</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-10 small">
+                                <span class="text-muted" style="font-size: 0.75rem;">Containers: @ship.ContainerNumbers</span>
+                                <a asp-controller="Shipments" asp-action="Details" asp-route-id="@ship.Id" class="text-decoration-none fw-bold text-success">
+                                    Details &rarr;
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- System Audit Feed & Recent Activity Logs -->
+<div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="font-serif text-dark mb-0"><i class="fa-solid fa-clock-rotate-left text-secondary me-2"></i> Live Audit Trail & Activity Logs</h5>
+        <a asp-controller="Admin" asp-action="ActivityLogs" class="btn btn-sm btn-outline-secondary">View Full Audit Log</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle small mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Timestamp</th>
+                    <th>User</th>
+                    <th>Module</th>
+                    <th>Action</th>
+                    <th>Transaction Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var act in Model.RecentActivities)
+                {
+                    <tr>
+                        <td class="text-muted" style="white-space: nowrap;">@act.Timestamp.ToString("dd MMM yyyy HH:mm")</td>
+                        <td class="fw-semibold">@act.UserName</td>
+                        <td><span class="badge bg-light text-dark border">@act.Module</span></td>
+                        <td class="fw-bold text-success">@act.Action</td>
+                        <td>@act.Details</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Render Inquiries by Country Chart
+        fetch('/api/dashboard/inquiries-by-country')
+            .then(res => res.json())
+            .then(data => {
+                var labels = data.map(x => x.country);
+                var values = data.map(x => x.count);
+                new Chart(document.getElementById('countryChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values,
+                            backgroundColor: ['#124726', '#d4af37', '#0369a1', '#7c3aed', '#ea580c', '#059669'],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } }
+                        }
+                    }
+                });
+            });
+
+        // Render Variety Distribution Chart
+        fetch('/api/dashboard/variety-distribution')
+            .then(res => res.json())
+            .then(data => {
+                var labels = data.map(x => x.variety);
+                var values = data.map(x => x.volumeMT);
+                new Chart(document.getElementById('varietyChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Volume (MT)',
+                            data: values,
+                            backgroundColor: '#124726',
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            });
+    });
+</script>
+}

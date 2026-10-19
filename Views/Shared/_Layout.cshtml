@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ARROW ARO RICE | Leading Indian Basmati & Non-Basmati Rice Exporters</title>
+    <meta name="description" content="ARROW ARO RICE is a premier Indian Rice Milling & Export Company exporting authentic 1121 XXL Basmati, 1509 Basmati, Traditional Basmati, Sona Masoori & IR64 to 45+ countries worldwide." />
+    <meta name="keywords" content="Basmati Rice Exporters India, 1121 Steam Basmati, Golden Sella, Non-Basmati Rice, IR64 Parboiled, Sona Masoori, APEDA Certified, Rice Supplier Dubai Saudi USA Europe" />
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5.3 & FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    
+    <!-- Master Custom Styling -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <!-- Top Information Bar -->
+    <div class="top-bar d-none d-md-block">
+        <div class="header-container d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <span><i class="fa-solid fa-award text-warning me-1"></i> APEDA Registered Star Export House | ISO 22000 & HACCP</span>
+                <span class="d-none d-lg-inline text-white-50">|</span>
+                <span class="d-none d-lg-inline"><i class="fa-solid fa-location-dot text-warning me-1"></i> Mills: Taraori, Karnal | Ports: Mundra & JNPT</span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <a href="mailto:export@arrowarorice.com"><i class="fa-solid fa-envelope me-1"></i> export@arrowarorice.com</a>
+                <span class="text-white-50">|</span>
+                <a href="tel:+919812044550"><i class="fa-solid fa-phone me-1"></i> +91 98120 44550</a>
+                <span class="text-white-50">|</span>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <a asp-controller="Admin" asp-action="Index" class="badge bg-warning text-dark text-decoration-none px-2 py-1">
+                        <i class="fa-solid fa-gauge-high me-1"></i> CRM Portal (@User.Identity.Name)
+                    </a>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="text-white-50 text-decoration-none">
+                        <i class="fa-solid fa-lock me-1"></i> Portal Login
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navigation Bar -->
+    <header class="sticky-top">
+        <nav class="navbar navbar-expand-xl navbar-luxury">
+            <div class="header-container d-flex align-items-center justify-content-between">
+                <a class="navbar-brand me-3 me-xxl-4" asp-controller="Home" asp-action="Index">
+                    <span class="brand-badge"><i class="fa-solid fa-wheat-awn me-1"></i> PURE GRAIN</span>
+                    <span class="brand-name">ARROW ARO RICE</span>
+                </a>
+                
+                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav mx-auto mb-2 mb-xl-0 align-items-center">
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "About" ? "active" : "")" asp-controller="Home" asp-action="About">About Us</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Products" ? "active" : "")" asp-controller="Home" asp-action="Products">Products</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Specifications" ? "active" : "")" asp-controller="Home" asp-action="Specifications">Rice Specifications</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "ExportServices" ? "active" : "")" asp-controller="Home" asp-action="ExportServices">Export Services</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Quality" ? "active" : "")" asp-controller="Home" asp-action="Quality">Quality & Certs</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Contact" ? "active" : "")" asp-controller="Home" asp-action="Contact">Contact & RFQ</a>
+                        </li>
+                    </ul>
+
+                    <div class="d-flex align-items-center gap-2 header-actions ms-xl-3">
+                        <a asp-controller="Home" asp-action="DownloadBrochure" class="btn btn-outline-gold d-none d-lg-inline-flex align-items-center gap-2">
+                            <i class="fa-solid fa-file-pdf"></i> Profile
+                        </a>
+                        <button type="button" class="btn btn-gold d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#quickQuoteModal">
+                            <i class="fa-solid fa-paper-plane"></i> Request Quote
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Notification Toasts / Flash Messages -->
+    <div class="container-xl mt-3">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show d-flex align-items-center shadow-sm" role="alert">
+                <i class="fa-solid fa-circle-check fs-4 me-2"></i>
+                <div>@TempData["SuccessMessage"]</div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center shadow-sm" role="alert">
+                <i class="fa-solid fa-triangle-exclamation fs-4 me-2"></i>
+                <div>@TempData["ErrorMessage"]</div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+
+    <!-- Main Page Body -->
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <!-- Floating WhatsApp Action Button -->
+    <a href="https://wa.me/919812044550?text=Hello%20Arrow%20Aro%20Rice%20Export%20Desk,%20I%20am%20interested%20in%20importing%20rice%20to%20my%20country.%20Please%20share%20quotation." 
+       target="_blank" 
+       class="whatsapp-float" 
+       title="Direct WhatsApp Export Desk">
+        <i class="fa-brands fa-whatsapp"></i>
+    </a>
+
+    <!-- Quick Quote / RFQ Modal -->
+    <div class="modal fade" id="quickQuoteModal" tabindex="-1" aria-labelledby="quickQuoteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-dark text-white p-4" style="background: linear-gradient(135deg, #091f13, #154e29) !important;">
+                    <div>
+                        <span class="badge bg-warning text-dark text-uppercase px-2 py-1 mb-1">Direct Export Inquiry</span>
+                        <h4 class="modal-title font-serif text-white mb-0" id="quickQuoteModalLabel">Request International Price Quotation</h4>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form asp-controller="Home" asp-action="SubmitInquiry" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="modal-body p-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Your Full Name <span class="text-danger">*</span></label>
+                                <input type="text" name="FullName" class="form-control" placeholder="e.g. Sheikh Ahmed Al-Mansoor" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Company / Importer Name</label>
+                                <input type="text" name="CompanyName" class="form-control" placeholder="e.g. Al-Madina Foodstuff LLC" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Business Email <span class="text-danger">*</span></label>
+                                <input type="email" name="Email" class="form-control" placeholder="trade@company.com" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">WhatsApp / Phone with Country Code <span class="text-danger">*</span></label>
+                                <input type="text" name="Phone" class="form-control" placeholder="+971 50 123 4567" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Destination Country <span class="text-danger">*</span></label>
+                                <input type="text" name="Country" class="form-control" placeholder="e.g. United Arab Emirates, Saudi Arabia, USA" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Destination Port <span class="text-danger">*</span></label>
+                                <input type="text" name="DestinationPort" class="form-control" placeholder="e.g. Jebel Ali, Jeddah, Hamburg" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Rice Variety Required <span class="text-danger">*</span></label>
+                                <select name="RiceVariety" class="form-select" required>
+                                    <option value="1121 XXL Steam Basmati Rice">1121 XXL Steam Basmati Rice (8.35mm+)</option>
+                                    <option value="1121 Golden Sella Basmati Rice">1121 Golden Sella Basmati Rice</option>
+                                    <option value="1121 Creamy White Sella Basmati">1121 Creamy White Sella Basmati</option>
+                                    <option value="1509 Steam Basmati Rice">1509 Steam Basmati Rice (8.40mm+)</option>
+                                    <option value="Traditional Aged Raw Basmati">Traditional Aged Raw Basmati</option>
+                                    <option value="Sugandha Steam Basmati Rice">Sugandha Steam Basmati Rice</option>
+                                    <option value="Sharbati White Sella Basmati">Sharbati White Sella Basmati</option>
+                                    <option value="Sona Masoori Raw Milled Rice">Sona Masoori Raw Milled Rice</option>
+                                    <option value="IR64 Parboiled Rice (5% Broken)">IR64 Parboiled Rice (5% Broken)</option>
+                                    <option value="PR11 / PR14 Steam Rice">PR11 / PR14 Steam Rice</option>
+                                    <option value="100% Broken White Rice">100% Broken White Rice</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Estimated Quantity (in Metric Tons) <span class="text-danger">*</span></label>
+                                <input type="number" step="1" name="QuantityMT" class="form-control" value="25" min="1" max="50000" required />
+                                <small class="text-muted">MOQ: 1x20' FCL container approx 25 MT</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Preferred IncoTerm</label>
+                                <select name="IncoTerm" class="form-select">
+                                    <option value="CIF" selected>CIF (Cost, Insurance & Freight to Destination)</option>
+                                    <option value="FOB">FOB (Mundra / Nhava Sheva Port, India)</option>
+                                    <option value="CFR">CFR (Cost & Freight)</option>
+                                    <option value="EXW">EXW (Factory Mill Gate, Karnal)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Packaging Preference</label>
+                                <select name="PreferredPackaging" class="form-select">
+                                    <option value="50 Kg PP Bags">50 Kg Polypropylene (PP) Sacks</option>
+                                    <option value="40 Kg PP Bags (Saudi Standard)">40 Kg PP Bags (Saudi Standard)</option>
+                                    <option value="25 Kg Non-Woven Bags">25 Kg Non-Woven Bags</option>
+                                    <option value="20 Kg / 10 Kg BOPP Bags">20 Kg / 10 Kg BOPP Custom Printed Bags</option>
+                                    <option value="1 Kg / 5 Kg Retail Pouches">1 Kg / 5 Kg Retail Pouches in Master Cartons</option>
+                                    <option value="Custom Private Labeling">Custom Private Labeling (Buyer's Brand)</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Specific Requirements / Message <span class="text-danger">*</span></label>
+                                <textarea name="Message" class="form-control" rows="3" placeholder="Please mention expected delivery timeline, payment terms (LC/TT), third-party inspection (SGS/BV), or sample requests..." required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light p-3">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-gold px-4">
+                            <i class="fa-solid fa-paper-plane me-1"></i> Submit Quotation Request
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Luxury Footer -->
+    <footer class="footer-luxury">
+        <div class="container-xl">
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="badge bg-warning text-dark text-uppercase px-2 py-1"><i class="fa-solid fa-wheat-awn"></i> EST. 1998</span>
+                        <h4 class="text-white mb-0 font-serif">ARROW ARO RICE</h4>
+                    </div>
+                    <p class="text-white-50 pe-lg-3">
+                        India’s trusted miller, processor, and bulk exporter of world-renowned Basmati and Non-Basmati rice varieties. Sourced directly from certified farmer clusters in Punjab and Haryana, optical sortex cleaned, and delivered globally across 45+ countries.
+                    </p>
+                    <div class="d-flex gap-2 mt-4">
+                        <span class="badge border border-warning text-warning p-2"><i class="fa-solid fa-check text-warning me-1"></i> APEDA Star House</span>
+                        <span class="badge border border-light text-light p-2"><i class="fa-solid fa-shield text-info me-1"></i> ISO 22000 & HACCP</span>
+                        <span class="badge border border-success text-success p-2"><i class="fa-solid fa-moon text-success me-1"></i> 100% Halal</span>
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-6">
+                    <h5>Rice Varieties</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a asp-controller="Home" asp-action="Products" asp-route-category="Basmati">1121 Steam Basmati</a></li>
+                        <li class="mb-2"><a asp-controller="Home" asp-action="Products" asp-route-category="Basmati">1121 Golden Sella</a></li>
+                        <li class="mb-2"><a asp-controller="Home" asp-action="Products" asp-route-category="Basmati">1509 Steam Basmati</a></li>
+                        <li class="mb-2"><a asp-controller="Home" asp-action="Products" asp-route-category="Basmati">Traditional Raw Vintage</a></li>
+                        <li class="mb-2"><a asp-controller="Home" asp-action="Products" asp-route-category="Non-Basmati">Sona Masoori Milled</a></li>
+                        <li class="mb-2"><a asp-controller="Home" asp-action="Products" asp-route-category="Non-Basmati">IR64 Parboiled 5%</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h5>Export Operations</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a asp-controller="Home" asp-action="Specifications">Technical Laboratory Specs</a></li>
+                        <li class="mb-2"><a asp-controller="Home" asp-action="ExportServices">Private Label & Packaging</a></li>
+                        <li class="mb-2"><a asp-controller="Home" asp-action="ExportServices">FOB / CIF Container Logistics</a></li>
+                        <li class="mb-2"><a asp-controller="Home" asp-action="Quality">SGS & Pre-Shipment Inspection</a></li>
+                        <li class="mb-2"><a asp-controller="Home" asp-action="Contact">Request Official Proforma</a></li>
+                        <li class="mb-2"><a asp-controller="Home" asp-action="DownloadBrochure">Download Export Profile</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h5>Global Export Desk</h5>
+                    <p class="text-white-50 mb-1"><strong>Head Office:</strong> Taraori Rice Belt, Karnal, Haryana 132116, India</p>
+                    <p class="text-white-50 mb-1"><strong>Port Operations:</strong> Mundra Port (Gujarat) & JNPT Mumbai</p>
+                    <p class="text-white-50 mb-1"><strong>Email:</strong> <a href="mailto:export@arrowarorice.com" class="text-warning">export@arrowarorice.com</a></p>
+                    <p class="text-white-50 mb-3"><strong>WhatsApp / Phone:</strong> <a href="tel:+919812044550" class="text-warning">+91 98120 44550</a></p>
+                    <button class="btn btn-sm btn-outline-warning w-100" data-bs-toggle="modal" data-bs-target="#quickQuoteModal">
+                        <i class="fa-solid fa-headset me-1"></i> Speak to Trade Manager
+                    </button>
+                </div>
+            </div>
+
+            <div class="footer-bottom d-flex flex-column flex-md-row justify-content-between align-items-center">
+                <div class="text-white-50 mb-2 mb-md-0">
+                    &copy; @DateTime.UtcNow.Year ARROW ARO RICE EXPORTS PVT LTD. All Rights Reserved. Govt. of India Recognized Star Export House.
+                </div>
+                <div class="d-flex gap-3">
+                    <a asp-controller="Home" asp-action="Privacy" class="text-white-50">Privacy Policy</a>
+                    <span class="text-white-50">|</span>
+                    <a asp-controller="Home" asp-action="Contact" class="text-white-50">Legal & Terms</a>
+                    <span class="text-white-50">|</span>
+                    <a asp-controller="Account" asp-action="Login" class="text-warning"><i class="fa-solid fa-shield-halved me-1"></i> CRM Portal</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5.3 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

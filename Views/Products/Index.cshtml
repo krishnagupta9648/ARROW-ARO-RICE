@@ -1,0 +1,72 @@
+@model List<ARROW_ARO_RICE.Models.Product>
+@{
+    ViewData["Title"] = "Rice Catalog & Specifications Management";
+    Layout = "_AdminLayout";
+}
+
+<div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <h5 class="font-serif text-dark mb-1">Product Catalog & Export Specifications</h5>
+            <p class="text-muted small mb-0">Configure active varieties, default FOB price benchmarks, moisture limits, and minimum order quantities.</p>
+        </div>
+        <a asp-action="Create" class="btn btn-sm btn-gold d-inline-flex align-items-center gap-1">
+            <i class="fa-solid fa-plus"></i> Add New Rice Variety
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle small mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Variety Name & Code</th>
+                    <th>Category</th>
+                    <th>Processing</th>
+                    <th>Grain Length</th>
+                    <th>Moisture</th>
+                    <th>Broken</th>
+                    <th>FOB Base Price</th>
+                    <th>MOQ</th>
+                    <th>Total Stock</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model)
+                {
+                    var totalStock = p.InventoryStocks.Sum(s => s.QuantityMT);
+                    <tr>
+                        <td>
+                            <div class="fw-bold text-dark fs-6">@p.Name</div>
+                            <span class="badge bg-light text-muted border">@p.Code</span>
+                        </td>
+                        <td>
+                            <span class="badge @(p.Category == "Basmati" ? "bg-success" : "bg-secondary")">@p.Category</span>
+                        </td>
+                        <td>@p.ProcessingType</td>
+                        <td class="fw-bold text-success">@p.AverageLengthMm mm</td>
+                        <td>@p.MoistureMaxPercent%</td>
+                        <td>@p.BrokenMaxPercent%</td>
+                        <td class="fw-bold text-dark">$@p.DefaultFobPricePerMT.ToString("N0") /MT</td>
+                        <td>@p.MinOrderQuantityMT MT</td>
+                        <td class="fw-bold @(totalStock > 0 ? "text-success" : "text-danger")">
+                            @totalStock.ToString("N0") MT
+                        </td>
+                        <td>
+                            @if (p.IsActive)
+                            {
+                                <span class="badge bg-success bg-opacity-10 text-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger bg-opacity-10 text-danger">Inactive</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

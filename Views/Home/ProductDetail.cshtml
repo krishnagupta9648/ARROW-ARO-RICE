@@ -1,0 +1,209 @@
+@model ARROW_ARO_RICE.Models.Product
+@{
+    ViewData["Title"] = $"{Model.Name} - Indian Rice Technical Specifications";
+    var related = ViewBag.RelatedProducts as List<ARROW_ARO_RICE.Models.Product> ?? new List<ARROW_ARO_RICE.Models.Product>();
+}
+
+<div class="py-5" style="background: linear-gradient(135deg, #091f13, #154e29); color: #fff;">
+    <div class="container-xl">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-action="Index" class="text-white-50 text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item"><a asp-action="Products" class="text-white-50 text-decoration-none">Products</a></li>
+                <li class="breadcrumb-item active text-warning" aria-current="page">@Model.Name</li>
+            </ol>
+        </nav>
+        <span class="badge bg-warning text-dark text-uppercase px-3 py-2 rounded-pill mb-2">@Model.Category Rice</span>
+        <h1 class="display-4 font-serif text-white mb-2">@Model.Name</h1>
+        <p class="lead text-white-75 mb-0">Grade Code: @Model.Code | Processing: @Model.ProcessingType | Origin: Taraori, Karnal, India</p>
+    </div>
+</div>
+
+<div class="container-xl py-5">
+    <div class="row g-5">
+        <!-- Main Details & Technical Specs Table -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 mb-5 bg-white">
+                <h3 class="font-serif text-dark mb-4">Detailed Technical Laboratory Parameters</h3>
+                <p class="text-muted">Conforming to APEDA (Agricultural and Processed Food Products Export Development Authority) and international food safety codex standards.</p>
+                
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle">
+                        <thead class="table-dark" style="background-color: #0c2b18;">
+                            <tr>
+                                <th style="width: 50%;">Laboratory Quality Parameter</th>
+                                <th style="width: 50%;">Certified Export Standard</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="fw-semibold"><i class="fa-solid fa-ruler-horizontal text-success me-2"></i> Average Grain Length (Raw AGL)</td>
+                                <td class="fw-bold text-success">@Model.AverageLengthMm mm Minimum</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-semibold"><i class="fa-solid fa-droplet text-primary me-2"></i> Moisture Content</td>
+                                <td>@Model.MoistureMaxPercent% Maximum (Safe Marine Transit)</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-semibold"><i class="fa-solid fa-percent text-danger me-2"></i> Broken Grain Allowance</td>
+                                <td>@Model.BrokenMaxPercent% Maximum</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-semibold"><i class="fa-solid fa-cookie-bite text-warning me-2"></i> Chalky Grains</td>
+                                <td>@Model.ChalkyMaxPercent% Maximum</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-semibold"><i class="fa-solid fa-shield text-info me-2"></i> Damaged & Discolored Grains</td>
+                                <td>0.5% Maximum (Sortex Cleaned)</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-semibold"><i class="fa-solid fa-broom text-secondary me-2"></i> Foreign Matter</td>
+                                <td>@Model.ForeignMatterMaxPercent% Maximum</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-semibold"><i class="fa-solid fa-dna text-purple me-2"></i> Admixture of Other Varieties</td>
+                                <td>@Model.AdmixtureMaxPercent% Maximum (Genetic Purity > 95%)</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-semibold"><i class="fa-solid fa-expand text-success me-2"></i> Cooked Elongation Ratio</td>
+                                <td class="fw-bold">@Model.ElongationRatio (Non-Sticky, Separate Grains)</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-semibold"><i class="fa-solid fa-wind text-warning me-2"></i> Natural Aroma Grade</td>
+                                <td>@Model.AromaGrade</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-semibold"><i class="fa-solid fa-sun text-warning me-2"></i> Kett Whiteness Rating</td>
+                                <td>@Model.KettWhiteness</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="font-serif text-dark mt-4 mb-3">Culinary & Export Profile</h4>
+                <p class="text-muted">@Model.Description</p>
+
+                @if (!string.IsNullOrEmpty(Model.Highlights))
+                {
+                    <div class="p-3 bg-light rounded-3 mt-3 border">
+                        <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-star text-warning me-1"></i> Quality Highlights:</h6>
+                        <ul class="mb-0 text-muted small">
+                            @foreach (var highlight in Model.Highlights.Split(';', StringSplitOptions.RemoveEmptyEntries))
+                            {
+                                <li>@highlight.Trim()</li>
+                            }
+                        </ul>
+                    </div>
+                }
+            </div>
+
+            <!-- Related Varieties -->
+            @if (related.Any())
+            {
+                <h4 class="font-serif text-dark mb-3">Other @Model.Category Varieties</h4>
+                <div class="row g-3">
+                    @foreach (var rel in related)
+                    {
+                        <div class="col-md-4">
+                            <div class="p-3 bg-white rounded-3 border h-100 d-flex flex-column">
+                                <h6 class="fw-bold mb-1"><a asp-action="ProductDetail" asp-route-id="@rel.Id" class="text-dark text-decoration-none">@rel.Name</a></h6>
+                                <div class="text-muted small mb-2">AGL: @rel.AverageLengthMm mm | $@rel.DefaultFobPricePerMT/MT</div>
+                                <a asp-action="ProductDetail" asp-route-id="@rel.Id" class="btn btn-sm btn-outline-success mt-auto">View Specs</a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Product-Specific Inquiry Form Sidecard -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-md rounded-4 p-4 sticky-top bg-white" style="top: 100px;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="badge bg-warning text-dark text-uppercase">Direct Factory RFQ</span>
+                    <span class="text-muted small"><i class="fa-solid fa-cube me-1"></i> MOQ: @Model.MinOrderQuantityMT MT</span>
+                </div>
+
+                <h4 class="font-serif text-dark mb-1">Inquire for @Model.Name</h4>
+                <div class="fs-4 fw-bold text-success mb-3">$@Model.DefaultFobPricePerMT.ToString("N0") <span class="fs-6 fw-normal text-muted">/ MT (FOB Mundra)</span></div>
+
+                <form asp-action="SubmitInquiry" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="ProductId" value="@Model.Id" />
+                    <input type="hidden" name="RiceVariety" value="@Model.Name" />
+
+                    <div class="mb-2">
+                        <label class="form-label small fw-semibold">Your Full Name *</label>
+                        <input type="text" name="FullName" class="form-control form-control-sm" required />
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label small fw-semibold">Company Name *</label>
+                        <input type="text" name="CompanyName" class="form-control form-control-sm" required />
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label small fw-semibold">Business Email *</label>
+                        <input type="email" name="Email" class="form-control form-control-sm" required />
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label small fw-semibold">WhatsApp / Phone *</label>
+                        <input type="text" name="Phone" class="form-control form-control-sm" placeholder="+971 50..." required />
+                    </div>
+
+                    <div class="row g-2 mb-2">
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">Country *</label>
+                            <input type="text" name="Country" class="form-control form-control-sm" required />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">Dest. Port *</label>
+                            <input type="text" name="DestinationPort" class="form-control form-control-sm" required />
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-2">
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">Quantity (MT) *</label>
+                            <input type="number" name="QuantityMT" value="@Model.MinOrderQuantityMT" min="1" class="form-control form-control-sm" required />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">IncoTerm</label>
+                            <select name="IncoTerm" class="form-select form-select-sm">
+                                <option value="CIF" selected>CIF</option>
+                                <option value="FOB">FOB</option>
+                                <option value="CFR">CFR</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label small fw-semibold">Packaging</label>
+                        <select name="PreferredPackaging" class="form-select form-select-sm">
+                            <option value="50 Kg PP Bags">50 Kg PP Bags</option>
+                            <option value="40 Kg PP Bags">40 Kg PP Bags</option>
+                            <option value="25 Kg Non-Woven">25 Kg Non-Woven</option>
+                            <option value="10 Kg / 20 Kg BOPP">10/20 Kg BOPP Custom</option>
+                            <option value="1kg/5kg Retail Pouches">1kg/5kg Retail Pouches</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Requirements / Notes *</label>
+                        <textarea name="Message" class="form-control form-control-sm" rows="3" placeholder="Please mention LC terms, desired crop year, or sample lot requests..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-gold w-100">
+                        <i class="fa-solid fa-paper-plane me-1"></i> Send Official Inquiry
+                    </button>
+                </form>
+
+                <div class="mt-3 pt-3 border-top text-center text-muted small">
+                    <i class="fa-brands fa-whatsapp text-success me-1"></i> Need instant quotation?
+                    <a href="https://wa.me/919812044550?text=Hello%20Arrow%20Aro%20Rice,%20I%20am%20inquiring%20about%20@Model.Name." target="_blank" class="text-success fw-bold text-decoration-none">Chat on WhatsApp</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

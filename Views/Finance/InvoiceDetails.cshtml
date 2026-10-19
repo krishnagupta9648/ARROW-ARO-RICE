@@ -1,0 +1,231 @@
+@model ARROW_ARO_RICE.Models.Invoice
+@{
+    ViewData["Title"] = $"Commercial Invoice: {Model.InvoiceNumber}";
+    Layout = "_AdminLayout";
+}
+
+<!-- Top Action Bar -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 no-print">
+    <div>
+        <a asp-action="Invoices" class="btn btn-sm btn-outline-secondary mb-2">&larr; Back to Invoices</a>
+        <h4 class="font-serif text-dark mb-0">Commercial Invoice #@Model.InvoiceNumber</h4>
+        <span class="text-muted small">Customer: <strong>@Model.Customer?.CompanyName</strong> | Order Ref: <strong>@Model.SalesOrder?.OrderNumber</strong></span>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+        <button type="button" class="btn btn-sm btn-outline-dark" onclick="window.print()">
+            <i class="fa-solid fa-print me-1"></i> Print / Save PDF
+        </button>
+        @if (Model.BalanceAmount > 0)
+        {
+            <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#recordPaymentModal">
+                <i class="fa-solid fa-hand-holding-dollar me-1"></i> Record Buyer Remittance
+            </button>
+        }
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Invoice Sheet -->
+    <div class="col-lg-8">
+        <div class="proforma-sheet">
+            <!-- Header -->
+            <div class="row align-items-center border-bottom pb-4 mb-4">
+                <div class="col-8">
+                    <span class="badge bg-warning text-dark text-uppercase px-2 py-1 mb-1">GOVT RECOGNIZED STAR EXPORT HOUSE</span>
+                    <h2 class="font-serif fw-bold text-dark mb-0">ARROW ARO RICE EXPORTS PVT LTD</h2>
+                    <div class="text-muted small">
+                        Milling Complex: Taraori Rice Belt, Karnal, Haryana 132116, India<br />
+                        Port CFS: Mundra Port (Gujarat) & JNPT Mumbai | APEDA: APEDA/RICE/2026/8892<br />
+                        IEC: 0504018291 | GSTIN: 06AABCA8891P1ZX | Email: accounts@arrowarorice.com
+                    </div>
+                </div>
+                <div class="col-4 text-end">
+                    <h3 class="font-serif text-success mb-1">COMMERCIAL INVOICE</h3>
+                    <div class="fs-5 fw-bold text-dark">#@Model.InvoiceNumber</div>
+                    <div class="text-muted small">Date: @Model.InvoiceDate.ToString("dd MMM yyyy")</div>
+                    <div class="text-muted small">Due: <strong>@Model.DueDate.ToString("dd MMM yyyy")</strong></div>
+                </div>
+            </div>
+
+            <!-- Parties -->
+            <div class="row g-4 mb-4">
+                <div class="col-6">
+                    <div class="p-3 bg-light rounded-3 h-100">
+                        <h6 class="text-uppercase fw-bold text-muted small mb-2">Billed To (Buyer / Importer):</h6>
+                        <div class="fw-bold fs-6 text-dark">@Model.Customer?.CompanyName</div>
+                        <div class="text-muted small">@Model.Customer?.Address</div>
+                        <div class="text-muted small">@Model.Customer?.City, @Model.Customer?.Country</div>
+                        <div class="text-muted small">VAT / Tax ID: @Model.Customer?.TaxOrVatNumber</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="p-3 bg-light rounded-3 h-100">
+                        <h6 class="text-uppercase fw-bold text-muted small mb-2">Maritime Consignment Details:</h6>
+                        <div class="small"><strong>Sales Order No:</strong> @Model.SalesOrder?.OrderNumber</div>
+                        <div class="small"><strong>Port of Loading:</strong> @Model.SalesOrder?.PortOfLoading</div>
+                        <div class="small"><strong>Destination Port:</strong> @Model.SalesOrder?.PortOfDestination</div>
+                        <div class="small"><strong>Trade Terms:</strong> @Model.SalesOrder?.IncoTerm</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Items -->
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered align-middle small">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Sr.</th>
+                            <th>Description of Goods</th>
+                            <th>Packaging</th>
+                            <th>Quantity (MT)</th>
+                            <th>Rate / MT</th>
+                            <th class="text-end">Amount (@Model.Currency)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ var c = 1; }
+                        @foreach (var itm in Model.SalesOrder?.Items ?? new List<ARROW_ARO_RICE.Models.SalesOrderItem>())
+                        {
+                            <tr>
+                                <td class="text-center">@c</td>
+                                <td class="fw-bold text-dark">@itm.ProductName</td>
+                                <td>@itm.Packaging</td>
+                                <td class="fw-bold">@itm.QuantityMT.ToString("N1") MT</td>
+                                <td>$@itm.UnitPricePerMT.ToString("N0")</td>
+                                <td class="text-end fw-bold">$@itm.TotalAmount.ToString("N2")</td>
+                            </tr>
+                            c++;
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="5" class="text-end fw-bold">Sub Total:</td>
+                            <td class="text-end fw-bold">$@Model.SubTotal.ToString("N2")</td>
+                        </tr>
+                        <tr>
+                            <td colspan="5" class="text-end">Export Duties & Taxes:</td>
+                            <td class="text-end">Zero Rated (Export Consignment)</td>
+                        </tr>
+                        <tr class="table-success">
+                            <td colspan="5" class="text-end fw-bold fs-6">Invoice Grand Total:</td>
+                            <td class="text-end fw-bold fs-5 text-success">$@Model.GrandTotal.ToString("N2") @Model.Currency</td>
+                        </tr>
+                        <tr>
+                            <td colspan="5" class="text-end fw-bold text-success">Total Amount Paid:</td>
+                            <td class="text-end fw-bold text-success">$@Model.PaidAmount.ToString("N2")</td>
+                        </tr>
+                        <tr class="table-light">
+                            <td colspan="5" class="text-end fw-bold text-danger fs-6">Balance Due:</td>
+                            <td class="text-end fw-bold text-danger fs-5">$@Model.BalanceAmount.ToString("N2") @Model.Currency</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Bank SWIFT Details -->
+            <div class="p-3 bg-light rounded-3 border small mb-4">
+                <div class="fw-bold text-dark mb-1">Official Export Banking Coordinates:</div>
+                <div class="font-monospace text-muted" style="white-space: pre-wrap;">@Model.BankSwiftDetails</div>
+            </div>
+
+            <!-- Signatures -->
+            <div class="row pt-4 mt-3 border-top">
+                <div class="col-6">
+                    <div class="small text-muted mb-4">Customer Acceptance:</div>
+                    <div class="border-bottom border-dark" style="width: 200px; height: 30px;"></div>
+                    <div class="small fw-semibold mt-1">Authorized Buyer Signatory</div>
+                </div>
+                <div class="col-6 text-end">
+                    <div class="small text-muted mb-4">For ARROW ARO RICE EXPORTS PVT LTD:</div>
+                    <div class="border-bottom border-dark ms-auto" style="width: 200px; height: 30px;"></div>
+                    <div class="small fw-semibold mt-1">Export Accounts & Finance Manager</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Receipts & Audit History -->
+    <div class="col-lg-4 no-print">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <h5 class="font-serif text-dark mb-3"><i class="fa-solid fa-receipt text-success me-2"></i> Remittance Receipts</h5>
+            @if (!Model.Payments.Any())
+            {
+                <p class="text-muted small">No payment remittances logged yet.</p>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var p in Model.Payments)
+                    {
+                        <div class="p-3 rounded-3 bg-light border">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <strong class="text-dark">@p.ReceiptNumber</strong>
+                                <span class="badge bg-success bg-opacity-10 text-success fw-bold">+$@p.Amount.ToString("N0")</span>
+                            </div>
+                            <div class="small text-muted">Date: @p.PaymentDate.ToString("dd MMM yyyy")</div>
+                            <div class="small text-muted">Method: <strong>@p.PaymentMethod</strong></div>
+                            <div class="small text-dark font-monospace">Ref: @p.TransactionReference</div>
+                            @if (!string.IsNullOrEmpty(p.BankName))
+                            {
+                                <div class="small text-muted">Bank: @p.BankName</div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Record Payment -->
+<div class="modal fade" id="recordPaymentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title font-serif text-white">Record Buyer Remittance</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="RecordPayment" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="invoiceId" value="@Model.Id" />
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Remittance Amount (USD) *</label>
+                        <input type="number" step="100" name="amount" class="form-control" value="@Model.BalanceAmount" max="@Model.BalanceAmount" required />
+                        <small class="text-muted">Total Outstanding: $@Model.BalanceAmount.ToString("N2")</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Payment Instrument / Method *</label>
+                        <select name="paymentMethod" class="form-select">
+                            <option value="WireTransferTT" selected>Swift Wire Transfer (T/T)</option>
+                            <option value="LetterOfCredit">Letter of Credit (LC at Sight)</option>
+                            <option value="CashAgainstDocuments">Cash Against Documents (CAD)</option>
+                            <option value="AdvancePayment">Advance TT Remittance</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Swift UTR / Transaction Ref No *</label>
+                        <input type="text" name="transactionReference" class="form-control" placeholder="e.g. SWIFT-ENBD-AE-992819" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Remitting Overseas Bank</label>
+                        <input type="text" name="bankName" class="form-control" placeholder="e.g. Emirates NBD / Deutsche Bank / Al-Rajhi" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Notes</label>
+                        <textarea name="notes" class="form-control" rows="2" placeholder="70% balance remittance received against original BL scan..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success btn-sm px-3">Confirm Payment Entry</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,99 @@
+@model ARROW_ARO_RICE.Models.ExportShipment
+@{
+    ViewData["Title"] = "Initialize Export Shipment";
+    Layout = "_AdminLayout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a asp-controller="SalesOrders" asp-action="Details" asp-route-id="@Model.SalesOrderId" class="btn btn-sm btn-outline-secondary mb-2">&larr; Back to Order</a>
+        <h4 class="font-serif text-dark mb-0">Initialize Maritime Export Shipment</h4>
+        <span class="text-muted small">Sales Order: <strong>@Model.SalesOrder?.OrderNumber</strong> | Buyer: <strong>@Model.SalesOrder?.Customer?.CompanyName</strong></span>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white max-w-800">
+    <form asp-action="Create" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="SalesOrderId" />
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="ShipmentNumber" class="form-label small fw-semibold">Shipment Ref Number *</label>
+                <input asp-for="ShipmentNumber" class="form-control" required />
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="BookingNumber" class="form-label small fw-semibold">Carrier Booking Number *</label>
+                <input asp-for="BookingNumber" class="form-control" placeholder="e.g. MAEU-DXB-981042" required />
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="ShippingLine" class="form-label small fw-semibold">Ocean Shipping Line *</label>
+                <select asp-for="ShippingLine" class="form-select">
+                    <option value="Maersk Line" selected>Maersk Line (A.P. Moller)</option>
+                    <option value="MSC Mediterranean Shipping">MSC Mediterranean Shipping</option>
+                    <option value="CMA CGM Group">CMA CGM Group</option>
+                    <option value="Hapag-Lloyd">Hapag-Lloyd</option>
+                    <option value="HMM Ocean Services">HMM Ocean Services</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="VesselName" class="form-label small fw-semibold">Vessel Name *</label>
+                <input asp-for="VesselName" class="form-control" placeholder="e.g. MAERSK BROOKLYN" required />
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="VoyageNumber" class="form-label small fw-semibold">Voyage Number *</label>
+                <input asp-for="VoyageNumber" class="form-control" placeholder="e.g. V.2604W" required />
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="BillOfLadingNumber" class="form-label small fw-semibold">Bill of Lading Number *</label>
+                <input asp-for="BillOfLadingNumber" class="form-control" placeholder="e.g. BL-MND-DXB-98104" required />
+            </div>
+
+            <div class="col-12">
+                <label asp-for="ContainerNumbers" class="form-label small fw-semibold">Container Numbers (Comma Separated) *</label>
+                <input asp-for="ContainerNumbers" class="form-control" placeholder="e.g. MSKU7821941 (25 MT), MSKU7821942 (25 MT)" required />
+            </div>
+
+            <div class="col-12">
+                <label asp-for="SealNumbers" class="form-label small fw-semibold">High-Security Customs Seal Numbers *</label>
+                <input asp-for="SealNumbers" class="form-control" placeholder="e.g. ML-IN-98124, ML-IN-98125" required />
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="PortOfLoading" class="form-label small fw-semibold">Port of Loading *</label>
+                <input asp-for="PortOfLoading" class="form-control" required />
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="PortOfDestination" class="form-label small fw-semibold">Port of Destination *</label>
+                <input asp-for="PortOfDestination" class="form-control" required />
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="EstimatedDeparture" class="form-label small fw-semibold">Estimated Departure (ETD)</label>
+                <input asp-for="EstimatedDeparture" class="form-control" type="date" />
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="EstimatedArrival" class="form-label small fw-semibold">Estimated Arrival (ETA)</label>
+                <input asp-for="EstimatedArrival" class="form-control" type="date" />
+            </div>
+
+            <div class="col-12">
+                <label asp-for="StatusDescription" class="form-label small fw-semibold">Initial Status Description</label>
+                <input asp-for="StatusDescription" class="form-control" value="Containers allocated and booking confirmed with shipping line" />
+            </div>
+
+            <div class="col-12 mt-4">
+                <button type="submit" class="btn btn-gold btn-lg w-100">
+                    <i class="fa-solid fa-anchor me-2"></i> Confirm Shipment Initialization
+                </button>
+            </div>
+        </div>
+    </form>
+</div>

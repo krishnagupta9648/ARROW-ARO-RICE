@@ -1,0 +1,162 @@
+@model ARROW_ARO_RICE.Models.TableBrowserViewModel
+@{
+    ViewData["Title"] = $"Table: {Model.TableName} - Database Browser";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid px-0">
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small text-muted">
+                    <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Index" class="text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a asp-controller="Database" asp-action="Index" class="text-decoration-none">Database Studio</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">@Model.TableName</li>
+                </ol>
+            </nav>
+            <h2 class="h3 fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+                <i class="fa-solid fa-table text-primary"></i> Table: <code>@Model.TableName</code>
+                <span class="badge bg-secondary fs-6 fw-normal">@Model.TotalCount record(s)</span>
+            </h2>
+            <p class="text-muted small mb-0">
+                Direct relational table explorer. Showing top 100 rows with raw schema fields.
+            </p>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <!-- Table Switcher -->
+            <div class="dropdown">
+                <button class="btn btn-outline-dark btn-sm dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fa-solid fa-database"></i> Switch Table: <strong>@Model.TableName</strong>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="max-height: 350px; overflow-y: auto;">
+                    @foreach (var tbl in Model.AvailableTables)
+                    {
+                        <li>
+                            <a class="dropdown-item d-flex justify-content-between align-items-center @(tbl == Model.TableName ? "active" : "")" 
+                               asp-action="Table" asp-route-name="@tbl">
+                                <span><i class="fa-solid fa-table me-2 text-muted"></i>@tbl</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <!-- Export CSV -->
+            <a asp-action="ExportTableCsv" asp-route-name="@Model.TableName" class="btn btn-success btn-sm d-flex align-items-center gap-2">
+                <i class="fa-solid fa-file-csv"></i> Export Table CSV
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Studio
+            </a>
+        </div>
+    </div>
+
+    <!-- Search Card -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-body py-2">
+            <form method="get" asp-action="Table" class="row g-2 align-items-center">
+                <input type="hidden" name="name" value="@Model.TableName" />
+                <div class="col-md-5 col-lg-4">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-light"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                        <input type="text" name="search" value="@Model.SearchQuery" class="form-control" placeholder="Search in this table..." />
+                        @if (!string.IsNullOrEmpty(Model.SearchQuery))
+                        {
+                            <a asp-action="Table" asp-route-name="@Model.TableName" class="btn btn-outline-secondary">
+                                <i class="fa-solid fa-xmark"></i>
+                            </a>
+                        }
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary btn-sm px-3">Filter Records</button>
+                </div>
+                <div class="col text-end small text-muted">
+                    Columns: <strong>@Model.ColumnNames.Count</strong> | Showing up to 100 recent rows
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table Data Grid -->
+    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+        @if (Model.Rows.Any())
+        {
+            <div class="table-responsive" style="max-height: 650px; overflow-y: auto;">
+                <table class="table table-sm table-hover table-striped mb-0 align-middle">
+                    <thead class="table-dark sticky-top" style="font-size: 0.8rem;">
+                        <tr>
+                            <th class="ps-3 py-2 text-nowrap" style="width: 40px;">#</th>
+                            @foreach (var col in Model.ColumnNames)
+                            {
+                                <th class="text-nowrap px-2 py-2">@col</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody style="font-size: 0.82rem;">
+                        @{ int rowIndex = 1; }
+                        @foreach (var row in Model.Rows)
+                        {
+                            <tr>
+                                <td class="ps-3 text-muted small">@rowIndex</td>
+                                @foreach (var col in Model.ColumnNames)
+                                {
+                                    var val = row.ContainsKey(col) ? row[col] : null;
+                                    <td class="text-nowrap px-2 py-1">
+                                        @if (val == null)
+                                        {
+                                            <span class="text-muted fst-italic">NULL</span>
+                                        }
+                                        else if (val is bool b)
+                                        {
+                                            <span class="badge @(b ? "bg-success" : "bg-secondary")">@(b ? "TRUE" : "FALSE")</span>
+                                        }
+                                        else if (col.EndsWith("PricePerMT", StringComparison.OrdinalIgnoreCase) || 
+                                                 col.EndsWith("Amount", StringComparison.OrdinalIgnoreCase) || 
+                                                 col.EndsWith("GrandTotal", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <span class="fw-semibold text-dark">$@string.Format("{0:N2}", val)</span>
+                                        }
+                                        else if (col.EndsWith("Status", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <span class="badge bg-light text-dark border">@val.ToString()</span>
+                                        }
+                                        else if (col.EndsWith("Date", StringComparison.OrdinalIgnoreCase) || col.EndsWith("At", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <span class="text-secondary small">@Convert.ToDateTime(val).ToString("yyyy-MM-dd HH:mm")</span>
+                                        }
+                                        else
+                                        {
+                                            @val.ToString()
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                            rowIndex++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fa-solid fa-folder-open text-muted fs-1 mb-3"></i>
+                <h5 class="text-muted">No records found</h5>
+                <p class="small text-muted mb-3">
+                    @if (!string.IsNullOrEmpty(Model.SearchQuery))
+                    {
+                        <span>No records match query "<strong>@Model.SearchQuery</strong>" in <code>@Model.TableName</code>.</span>
+                    }
+                    else
+                    {
+                        <span>This table currently contains no data.</span>
+                    }
+                </p>
+                <a asp-action="Table" asp-route-name="@Model.TableName" class="btn btn-outline-primary btn-sm">Clear Filter</a>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,106 @@
+@model ARROW_ARO_RICE.Models.Customer
+@{
+    ViewData["Title"] = "Register International Buyer";
+    Layout = "_AdminLayout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary mb-2">&larr; Back to Buyer Directory</a>
+        <h4 class="font-serif text-dark mb-0">Register New International Importer</h4>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white max-w-800">
+    <form asp-action="Create" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="CompanyName" class="form-label small fw-semibold">Company / Importer Name *</label>
+                <input asp-for="CompanyName" class="form-control" placeholder="e.g. Al-Mahmoud Foodstuffs Trading LLC" required />
+                <span asp-validation-for="CompanyName" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="ContactPerson" class="form-label small fw-semibold">Key Contact Executive *</label>
+                <input asp-for="ContactPerson" class="form-control" placeholder="e.g. Sheikh Tariq Al-Mansoor" required />
+                <span asp-validation-for="ContactPerson" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Email" class="form-label small fw-semibold">Official Business Email *</label>
+                <input asp-for="Email" class="form-control" placeholder="trade@company.com" required />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Phone" class="form-label small fw-semibold">Phone Number *</label>
+                <input asp-for="Phone" class="form-control" placeholder="+971 4 398 2210" required />
+                <span asp-validation-for="Phone" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="WhatsApp" class="form-label small fw-semibold">WhatsApp Direct Number</label>
+                <input asp-for="WhatsApp" class="form-control" placeholder="+971 50 123 4567" />
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Country" class="form-label small fw-semibold">Importer Country *</label>
+                <input asp-for="Country" class="form-control" placeholder="e.g. United Arab Emirates, Saudi Arabia, USA" required />
+                <span asp-validation-for="Country" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="City" class="form-label small fw-semibold">City</label>
+                <input asp-for="City" class="form-control" placeholder="e.g. Dubai, Riyadh, Houston" />
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="PreferredDestinationPort" class="form-label small fw-semibold">Preferred Discharge Port</label>
+                <input asp-for="PreferredDestinationPort" class="form-control" placeholder="e.g. Jebel Ali Port (AEJEA)" />
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="TaxOrVatNumber" class="form-label small fw-semibold">Tax / VAT Registration No</label>
+                <input asp-for="TaxOrVatNumber" class="form-control" placeholder="e.g. TRN-1002938475" />
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="ImportLicenseNumber" class="form-label small fw-semibold">Import License / IEC / FDA Reg</label>
+                <input asp-for="ImportLicenseNumber" class="form-control" placeholder="e.g. FDA-REG-981249" />
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="CreditLimitUsd" class="form-label small fw-semibold">Credit Limit (USD)</label>
+                <input asp-for="CreditLimitUsd" class="form-control" type="number" step="1000" value="100000" />
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="PaymentTerms" class="form-label small fw-semibold">Standard Payment Terms</label>
+                <select asp-for="PaymentTerms" class="form-select">
+                    <option value="30% Advance + 70% against BL Scan">30% Advance + 70% against BL Scan</option>
+                    <option value="100% Irrevocable LC at Sight">100% Irrevocable LC at Sight</option>
+                    <option value="Cash Against Documents (CAD) via Prime Bank">Cash Against Documents (CAD)</option>
+                    <option value="20% Advance + 80% CAD">20% Advance + 80% CAD</option>
+                </select>
+            </div>
+
+            <div class="col-12">
+                <label asp-for="Address" class="form-label small fw-semibold">Warehouse / Corporate Address</label>
+                <input asp-for="Address" class="form-control" placeholder="Suite, Street, Industrial Zone, Postal Code" />
+            </div>
+
+            <div class="col-12">
+                <label asp-for="Notes" class="form-label small fw-semibold">Commercial Notes & Quality Preferences</label>
+                <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Buyer requirements on pesticide MRL, preferred packaging, inspection agency, etc."></textarea>
+            </div>
+
+            <div class="col-12 mt-4">
+                <button type="submit" class="btn btn-gold btn-lg w-100">
+                    <i class="fa-solid fa-check me-2"></i> Register Buyer in System
+                </button>
+            </div>
+        </div>
+    </form>
+</div>

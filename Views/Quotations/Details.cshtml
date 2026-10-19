@@ -1,0 +1,206 @@
+@model ARROW_ARO_RICE.Models.Quotation
+@{
+    ViewData["Title"] = $"Proforma Quotation: {Model.QuotationNumber}";
+    Layout = "_AdminLayout";
+}
+
+<!-- Top Action Bar -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 no-print">
+    <div>
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary mb-2">&larr; Back to Quotation Pipeline</a>
+        <h4 class="font-serif text-dark mb-0">Quotation #@Model.QuotationNumber</h4>
+        <span class="text-muted small">Issued on @Model.QuotationDate.ToString("dd MMMM yyyy") | Valid until @Model.ValidUntil.ToString("dd MMMM yyyy")</span>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+        <button type="button" class="btn btn-sm btn-outline-dark" onclick="window.print()">
+            <i class="fa-solid fa-print me-1"></i> Print / Save PDF
+        </button>
+
+        @if (Model.Status == ARROW_ARO_RICE.Models.QuotationStatus.Draft)
+        {
+            <form asp-action="UpdateStatus" asp-route-id="@Model.Id" asp-route-status="@ARROW_ARO_RICE.Models.QuotationStatus.Approved" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-sm btn-primary">
+                    <i class="fa-solid fa-check me-1"></i> Approve Quotation
+                </button>
+            </form>
+        }
+        else if (Model.Status == ARROW_ARO_RICE.Models.QuotationStatus.Approved)
+        {
+            <form asp-action="UpdateStatus" asp-route-id="@Model.Id" asp-route-status="@ARROW_ARO_RICE.Models.QuotationStatus.SentToBuyer" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-sm btn-info text-white">
+                    <i class="fa-solid fa-paper-plane me-1"></i> Mark as Sent to Buyer
+                </button>
+            </form>
+        }
+        else if (Model.Status == ARROW_ARO_RICE.Models.QuotationStatus.SentToBuyer)
+        {
+            <form asp-action="UpdateStatus" asp-route-id="@Model.Id" asp-route-status="@ARROW_ARO_RICE.Models.QuotationStatus.Accepted" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-sm btn-success">
+                    <i class="fa-solid fa-handshake me-1"></i> Buyer Accepted
+                </button>
+            </form>
+            <form asp-action="UpdateStatus" asp-route-id="@Model.Id" asp-route-status="@ARROW_ARO_RICE.Models.QuotationStatus.Rejected" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                    Rejected
+                </button>
+            </form>
+        }
+
+        @if (Model.Status == ARROW_ARO_RICE.Models.QuotationStatus.Accepted && Model.ConvertedSalesOrder == null)
+        {
+            <form asp-action="ConvertToSalesOrder" asp-route-id="@Model.Id" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-sm btn-gold">
+                    <i class="fa-solid fa-box-archive me-1"></i> Convert to Sales Order
+                </button>
+            </form>
+        }
+        else if (Model.ConvertedSalesOrder != null)
+        {
+            <a asp-controller="SalesOrders" asp-action="Details" asp-route-id="@Model.ConvertedSalesOrder.Id" class="btn btn-sm btn-success">
+                <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> View Order (@Model.ConvertedSalesOrder.OrderNumber)
+            </a>
+        }
+    </div>
+</div>
+
+<!-- Formal Printable Proforma Sheet -->
+<div class="proforma-sheet">
+    <!-- Company Letterhead Header -->
+    <div class="row align-items-center border-bottom pb-4 mb-4">
+        <div class="col-8">
+            <span class="badge bg-warning text-dark text-uppercase px-2 py-1 mb-1"><i class="fa-solid fa-wheat-awn"></i> STAR EXPORT HOUSE</span>
+            <h2 class="font-serif fw-bold text-dark mb-0">ARROW ARO RICE EXPORTS PVT LTD</h2>
+            <div class="text-muted small">
+                Milling Complex: Taraori Rice Industrial Belt, Karnal, Haryana 132116, India<br />
+                Port CFS Offices: Mundra Port (Gujarat) & Jawaharlal Nehru Port (JNPT Mumbai)<br />
+                APEDA Reg: APEDA/RICE/2026/8892 | IEC: 0504018291 | GSTIN: 06AABCA8891P1ZX<br />
+                Email: export@arrowarorice.com | Web: www.arrowarorice.com
+            </div>
+        </div>
+        <div class="col-4 text-end">
+            <h3 class="font-serif text-success mb-1">PROFORMA INVOICE</h3>
+            <div class="fs-5 fw-bold text-dark">#@Model.QuotationNumber</div>
+            <div class="badge-status badge-@Model.Status.ToString().ToLower() mt-1">Status: @Model.Status</div>
+        </div>
+    </div>
+
+    <!-- Buyer & Shipment Terms Grid -->
+    <div class="row g-4 mb-4">
+        <div class="col-6">
+            <div class="p-3 bg-light rounded-3 h-100">
+                <h6 class="text-uppercase fw-bold text-muted small mb-2">Consignee / Buyer:</h6>
+                <div class="fw-bold fs-6 text-dark">@Model.CustomerName</div>
+                <div class="text-muted small">Country: <strong>@Model.CustomerCountry</strong></div>
+                <div class="text-muted small">Email: @Model.CustomerEmail</div>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="p-3 bg-light rounded-3 h-100">
+                <h6 class="text-uppercase fw-bold text-muted small mb-2">Maritime Shipment Terms:</h6>
+                <div class="small"><strong>Trade Term:</strong> @Model.IncoTerm</div>
+                <div class="small"><strong>Port of Loading:</strong> @Model.PortOfLoading</div>
+                <div class="small"><strong>Discharge Port:</strong> @Model.DestinationPort</div>
+                <div class="small"><strong>Payment Terms:</strong> @Model.PaymentTerms</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Line Items Table -->
+    <div class="table-responsive mb-4">
+        <table class="table table-bordered align-middle small">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 5%;">Sr.</th>
+                    <th style="width: 35%;">Rice Variety & Export Grade</th>
+                    <th style="width: 20%;">Specifications</th>
+                    <th style="width: 15%;">Quantity (MT)</th>
+                    <th style="width: 10%;">Price/MT (@Model.Currency)</th>
+                    <th style="width: 15%;" class="text-end">Total Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{ var counter = 1; }
+                @foreach (var itm in Model.Items)
+                {
+                    <tr>
+                        <td class="text-center">@counter</td>
+                        <td>
+                            <div class="fw-bold text-dark">@itm.ProductName</div>
+                            <small class="text-muted">Packaging: @itm.Packaging</small>
+                        </td>
+                        <td>@itm.SpecificationsSummary</td>
+                        <td class="fw-bold">@itm.QuantityMT.ToString("N1") MT</td>
+                        <td>$@itm.UnitPricePerMT.ToString("N0")</td>
+                        <td class="text-end fw-bold text-dark">$@itm.TotalAmount.ToString("N2")</td>
+                    </tr>
+                    counter++;
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="5" class="text-end fw-bold">Cargo Subtotal:</td>
+                    <td class="text-end fw-bold">$@Model.SubTotal.ToString("N2")</td>
+                </tr>
+                <tr>
+                    <td colspan="5" class="text-end">Ocean Freight Charges (@Model.PortOfLoading to @Model.DestinationPort):</td>
+                    <td class="text-end">$@Model.FreightCharges.ToString("N2")</td>
+                </tr>
+                <tr>
+                    <td colspan="5" class="text-end">Marine All-Risk Insurance Coverage:</td>
+                    <td class="text-end">$@Model.InsuranceCharges.ToString("N2")</td>
+                </tr>
+                @if (Model.OtherCharges > 0)
+                {
+                    <tr>
+                        <td colspan="5" class="text-end">Port Handling & Terminal Charges:</td>
+                        <td class="text-end">$@Model.OtherCharges.ToString("N2")</td>
+                    </tr>
+                }
+                @if (Model.Discount > 0)
+                {
+                    <tr>
+                        <td colspan="5" class="text-end text-danger">Commercial Trade Discount:</td>
+                        <td class="text-end text-danger">-$@Model.Discount.ToString("N2")</td>
+                    </tr>
+                }
+                <tr class="table-success">
+                    <td colspan="5" class="text-end fw-bold fs-6">Grand Total (@Model.IncoTerm @Model.DestinationPort):</td>
+                    <td class="text-end fw-bold fs-5 text-success">$@Model.GrandTotal.ToString("N2") @Model.Currency</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <!-- Export Terms & Bank Details -->
+    <div class="row g-4 mb-4 small">
+        <div class="col-6">
+            <h6 class="fw-bold text-dark mb-1">Standard Export Terms & Conditions:</h6>
+            <div class="p-3 bg-light rounded-3 border" style="white-space: pre-wrap;">@Model.TermsAndConditions</div>
+            <div class="mt-2 text-muted"><strong>Pre-Shipment Inspection:</strong> @Model.InspectionAgency</div>
+        </div>
+        <div class="col-6">
+            <h6 class="fw-bold text-dark mb-1">Remittance & Bank SWIFT Instructions:</h6>
+            <div class="p-3 bg-light rounded-3 border font-monospace" style="white-space: pre-wrap;">@Model.BankDetails</div>
+        </div>
+    </div>
+
+    <!-- Signatures -->
+    <div class="row pt-5 mt-4 border-top">
+        <div class="col-6">
+            <div class="small text-muted mb-4">Confirmed & Accepted By Buyer:</div>
+            <div class="border-bottom border-dark" style="width: 220px; height: 30px;"></div>
+            <div class="small fw-semibold mt-1">Authorized Importer Signatory & Stamp</div>
+        </div>
+        <div class="col-6 text-end">
+            <div class="small text-muted mb-4">For ARROW ARO RICE EXPORTS PVT LTD:</div>
+            <div class="border-bottom border-dark ms-auto" style="width: 220px; height: 30px;"></div>
+            <div class="small fw-semibold mt-1">Head of International Trade Operations</div>
+        </div>
+    </div>
+</div>

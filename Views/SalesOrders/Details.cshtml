@@ -1,0 +1,203 @@
+@model ARROW_ARO_RICE.Models.SalesOrder
+@{
+    ViewData["Title"] = $"Sales Order: {Model.OrderNumber}";
+    Layout = "_AdminLayout";
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary mb-2">&larr; Back to Sales Orders</a>
+        <h4 class="font-serif text-dark mb-0">Sales Order #@Model.OrderNumber</h4>
+        <span class="text-muted small">Confirmed on @Model.OrderDate.ToString("dd MMMM yyyy") | Buyer PO Ref: @(Model.BuyerPoReference ?? "None")</span>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+        @if (!Model.Shipments.Any())
+        {
+            <a asp-controller="Shipments" asp-action="Create" asp-route-salesOrderId="@Model.Id" class="btn btn-sm btn-gold">
+                <i class="fa-solid fa-ship me-1"></i> Initialize Export Shipment
+            </a>
+        }
+        else
+        {
+            var sh = Model.Shipments.First();
+            <a asp-controller="Shipments" asp-action="Details" asp-route-id="@sh.Id" class="btn btn-sm btn-success">
+                <i class="fa-solid fa-ship me-1"></i> Track Shipment (@sh.ShipmentNumber)
+            </a>
+        }
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Main Order Details & Line Items -->
+    <div class="col-lg-8">
+        <!-- Order Overview Card -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                <h5 class="font-serif text-dark mb-0">Order Commercial Specifications</h5>
+                <span class="badge-status badge-@Model.Status.ToString().ToLower()">@Model.Status</span>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="text-muted small">Buyer / Consignee</div>
+                    <div class="fw-bold fs-6 text-dark">@Model.Customer?.CompanyName</div>
+                    <div class="text-muted small">@Model.Customer?.Country</div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small">Discharge Route</div>
+                    <div class="fw-semibold text-dark">@Model.PortOfLoading &rarr; @Model.PortOfDestination</div>
+                    <div class="text-muted small">Trade Term: <strong>@Model.IncoTerm</strong></div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small">Expected Shipment Date</div>
+                    <div class="fw-bold text-dark">@Model.ExpectedShipmentDate.ToString("dd MMMM yyyy")</div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small">Payment Terms</div>
+                    <div class="fw-bold text-success">@Model.PaymentTerms</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Line Items Table -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <h5 class="font-serif text-dark mb-3">Rice Consignment Items</h5>
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle small mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Rice Variety</th>
+                            <th>Packaging</th>
+                            <th>Quantity (MT)</th>
+                            <th>Unit Rate / MT</th>
+                            <th class="text-end">Total Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var itm in Model.Items)
+                        {
+                            <tr>
+                                <td class="fw-bold text-dark">@itm.ProductName</td>
+                                <td>@itm.Packaging</td>
+                                <td class="fw-bold">@itm.QuantityMT.ToString("N1") MT</td>
+                                <td>$@itm.UnitPricePerMT.ToString("N0")</td>
+                                <td class="text-end fw-bold text-dark">$@itm.TotalAmount.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-success">
+                            <td colspan="4" class="text-end fw-bold fs-6">Order Total (@Model.IncoTerm):</td>
+                            <td class="text-end fw-bold fs-5 text-success">$@Model.TotalAmount.ToString("N2") @Model.Currency</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <!-- Invoices & Receipts -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <h5 class="font-serif text-dark mb-3"><i class="fa-solid fa-receipt text-primary me-2"></i> Linked Commercial Invoices</h5>
+            @if (!Model.Invoices.Any())
+            {
+                <p class="text-muted small">No commercial invoice generated yet.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle small mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Invoice No</th>
+                                <th>Date</th>
+                                <th>Due Date</th>
+                                <th>Grand Total</th>
+                                <th>Paid Amount</th>
+                                <th>Balance Due</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var inv in Model.Invoices)
+                            {
+                                <tr>
+                                    <td class="fw-bold">@inv.InvoiceNumber</td>
+                                    <td>@inv.InvoiceDate.ToString("dd MMM yyyy")</td>
+                                    <td>@inv.DueDate.ToString("dd MMM yyyy")</td>
+                                    <td class="fw-bold">$@inv.GrandTotal.ToString("N0")</td>
+                                    <td class="text-success">$@inv.PaidAmount.ToString("N0")</td>
+                                    <td class="fw-bold text-danger">$@inv.BalanceAmount.ToString("N0")</td>
+                                    <td><span class="badge bg-light text-dark border">@inv.Status</span></td>
+                                    <td>
+                                        <a asp-controller="Finance" asp-action="InvoiceDetails" asp-route-id="@inv.Id" class="btn btn-xs btn-outline-dark">Open</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Right Controls Sidecard -->
+    <div class="col-lg-4">
+        <!-- Update Order Status -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <h5 class="font-serif text-dark mb-3">Update Order Lifecycle</h5>
+            <form asp-action="UpdateStatus" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Order Status</label>
+                    <select name="status" class="form-select">
+                        @foreach (var s in Enum.GetValues<ARROW_ARO_RICE.Models.SalesOrderStatus>())
+                        {
+                            <option value="@s" selected="@(Model.Status == s)">@s</option>
+                        }
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-emerald w-100">
+                    <i class="fa-solid fa-floppy-disk me-1"></i> Update Status
+                </button>
+            </form>
+        </div>
+
+        <!-- Profitability Quick Summary -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <h5 class="font-serif text-dark mb-3"><i class="fa-solid fa-chart-pie text-success me-2"></i> Order Financials</h5>
+            @{
+                decimal estimatedProcurement = Model.Items.Sum(i => i.QuantityMT * (i.UnitPricePerMT * 0.78m));
+                decimal expenses = Model.Expenses.Sum(e => e.Amount);
+                decimal netProfit = Model.TotalAmount - (estimatedProcurement + expenses);
+                decimal marginPct = Model.TotalAmount > 0 ? (netProfit / Model.TotalAmount) * 100 : 0;
+            }
+            <div class="d-flex justify-content-between small py-1 border-bottom">
+                <span class="text-muted">Order Revenue:</span>
+                <strong class="text-dark">$@Model.TotalAmount.ToString("N0")</strong>
+            </div>
+            <div class="d-flex justify-content-between small py-1 border-bottom">
+                <span class="text-muted">Est. Raw Paddy / Milling:</span>
+                <span class="text-muted">-$@estimatedProcurement.ToString("N0")</span>
+            </div>
+            <div class="d-flex justify-content-between small py-1 border-bottom">
+                <span class="text-muted">Freight & Export Expenses:</span>
+                <span class="text-muted">-$@expenses.ToString("N0")</span>
+            </div>
+            <div class="d-flex justify-content-between small py-2 fw-bold fs-6">
+                <span class="text-success">Net Margin:</span>
+                <span class="text-success">$@netProfit.ToString("N0") (@marginPct.ToString("N1")%)</span>
+            </div>
+            <a asp-controller="Finance" asp-action="Expenses" asp-route-salesOrderId="@Model.Id" class="btn btn-sm btn-outline-secondary w-100 mt-2">
+                Manage Order Expenses &rarr;
+            </a>
+        </div>
+    </div>
+</div>

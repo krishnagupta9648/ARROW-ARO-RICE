@@ -1,0 +1,153 @@
+@model List<ARROW_ARO_RICE.Models.Product>
+@{
+    ViewData["Title"] = "Export Product Catalog - Basmati & Non-Basmati Rice";
+    var selectedCat = ViewBag.SelectedCategory as string ?? "All";
+    var search = ViewBag.SearchTerm as string ?? "";
+}
+
+<div class="py-5" style="background: linear-gradient(135deg, #091f13, #154e29); color: #fff;">
+    <div class="container-xl">
+        <span class="badge bg-warning text-dark text-uppercase px-3 py-2 rounded-pill mb-2">B2B Product Portfolio</span>
+        <h1 class="display-4 font-serif text-white mb-2">Export Rice Catalogue</h1>
+        <p class="lead text-white-75 max-w-700">Explore our premium range of Indian Basmati, Non-Basmati, and Specialty Rice varieties available for containerized and break-bulk vessel shipments.</p>
+    </div>
+</div>
+
+<div class="container-xl py-5">
+    <!-- Filter Bar & Search -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-5 bg-white">
+        <form asp-action="Products" method="get" class="row g-3 align-items-center">
+            <div class="col-lg-6">
+                <div class="d-flex flex-wrap gap-2">
+                    <a asp-action="Products" asp-route-category="All" asp-route-search="@search" 
+                       class="btn btn-sm @(selectedCat == "All" ? "btn-emerald" : "btn-outline-secondary")">
+                        All Varieties (@Model.Count)
+                    </a>
+                    <a asp-action="Products" asp-route-category="Basmati" asp-route-search="@search" 
+                       class="btn btn-sm @(selectedCat == "Basmati" ? "btn-emerald" : "btn-outline-secondary")">
+                        Basmati Rice
+                    </a>
+                    <a asp-action="Products" asp-route-category="Non-Basmati" asp-route-search="@search" 
+                       class="btn btn-sm @(selectedCat == "Non-Basmati" ? "btn-emerald" : "btn-outline-secondary")">
+                        Non-Basmati Rice
+                    </a>
+                    <a asp-action="Products" asp-route-category="Broken" asp-route-search="@search" 
+                       class="btn btn-sm @(selectedCat == "Broken" ? "btn-emerald" : "btn-outline-secondary")">
+                        100% Broken Rice
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="input-group">
+                    <input type="text" name="search" value="@search" class="form-control" placeholder="Search by variety name, grain length or code..." />
+                    <input type="hidden" name="category" value="@selectedCat" />
+                    <button class="btn btn-emerald px-4" type="submit">
+                        <i class="fa-solid fa-magnifying-glass me-1"></i> Filter
+                    </button>
+                    @if (!string.IsNullOrEmpty(search) || selectedCat != "All")
+                    {
+                        <a asp-action="Products" class="btn btn-outline-danger">Reset</a>
+                    }
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Product Grid -->
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 bg-white rounded-4 border p-5">
+            <i class="fa-solid fa-wheat-awn-circle-exclamation fs-1 text-muted mb-3"></i>
+            <h4 class="text-dark">No Rice Varieties Found</h4>
+            <p class="text-muted">No rice products matched your search criteria. Please adjust your filters.</p>
+            <a asp-action="Products" class="btn btn-gold mt-2">View All Rice Products</a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var prod in Model)
+            {
+                <div class="col-lg-4 col-md-6">
+                    <div class="product-card">
+                        <div class="product-header">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="category-badge">@prod.Category</span>
+                                <span class="text-white-50 small"><i class="fa-solid fa-barcode me-1"></i> @prod.Code</span>
+                            </div>
+                            <h4 class="text-white fs-5 font-serif mb-1">@prod.Name</h4>
+                            <div class="text-warning small"><i class="fa-solid fa-gear me-1"></i> @prod.ProcessingType</div>
+                        </div>
+
+                        <div class="p-4 d-flex flex-column flex-grow-1">
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <span class="spec-pill"><i class="fa-solid fa-ruler-horizontal text-success me-1"></i> @prod.AverageLengthMm mm</span>
+                                <span class="spec-pill"><i class="fa-solid fa-droplet text-primary me-1"></i> @prod.MoistureMaxPercent% Moisture</span>
+                                <span class="spec-pill"><i class="fa-solid fa-percent text-danger me-1"></i> @prod.BrokenMaxPercent% Broken</span>
+                                <span class="spec-pill"><i class="fa-solid fa-wind text-warning me-1"></i> @prod.AromaGrade</span>
+                            </div>
+
+                            <p class="text-muted small mb-3 flex-grow-1">
+                                @prod.Description
+                            </p>
+
+                            <div class="bg-light p-3 rounded-3 mb-3 small">
+                                <div><strong>Packaging:</strong> @prod.PackagingOptions</div>
+                                <div><strong>Elongation:</strong> @prod.ElongationRatio</div>
+                            </div>
+
+                            <div class="border-top pt-3 mt-auto">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <div class="text-muted small">Indicative Price (FOB)</div>
+                                        <div class="fs-5 fw-bold text-dark">$@prod.DefaultFobPricePerMT.ToString("N0") <span class="fs-6 fw-normal text-muted">/ MT</span></div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="text-muted small">MOQ</div>
+                                        <span class="badge bg-light text-dark border">@prod.MinOrderQuantityMT MT (1 FCL)</span>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <a asp-action="ProductDetail" asp-route-id="@prod.Id" class="btn btn-sm btn-outline-success flex-grow-1">
+                                        <i class="fa-solid fa-circle-info me-1"></i> Full Lab Specs
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-gold flex-grow-1" 
+                                            onclick="openInquiryForProduct(@prod.Id, '@prod.Name', @prod.MinOrderQuantityMT)">
+                                        <i class="fa-solid fa-paper-plane me-1"></i> Inquire
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+    function openInquiryForProduct(productId, productName, moq) {
+        var modalEl = document.getElementById('quickQuoteModal');
+        var modal = new bootstrap.Modal(modalEl);
+        
+        var select = modalEl.querySelector('select[name="RiceVariety"]');
+        if (select) {
+            for (var i = 0; i < select.options.length; i++) {
+                if (select.options[i].text.includes(productName) || select.options[i].value.includes(productName)) {
+                    select.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+        
+        var qty = modalEl.querySelector('input[name="QuantityMT"]');
+        if (qty && moq) {
+            qty.value = moq;
+        }
+        
+        modal.show();
+    }
+</script>
+}

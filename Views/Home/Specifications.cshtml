@@ -1,0 +1,112 @@
+@model List<ARROW_ARO_RICE.Models.Product>
+@{
+    ViewData["Title"] = "Indian Rice Technical Laboratory Specifications Matrix";
+}
+
+<div class="py-5" style="background: linear-gradient(135deg, #091f13, #154e29); color: #fff;">
+    <div class="container-xl">
+        <span class="badge bg-warning text-dark text-uppercase px-3 py-2 rounded-pill mb-2">Quality & Laboratory Benchmark</span>
+        <h1 class="display-4 font-serif text-white mb-2">Rice Technical Specifications Matrix</h1>
+        <p class="lead text-white-75 max-w-700">Detailed chemical, physical, and cooking specifications benchmarked against APEDA guidelines, AGMARK standards, and European/US FDA import thresholds.</p>
+    </div>
+</div>
+
+<div class="container-xl py-5">
+    <!-- Specification Table -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 mb-5 bg-white">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+            <div>
+                <h3 class="font-serif text-dark mb-1">Comparative Specification Grid</h3>
+                <p class="text-muted small mb-0">Values verified by certified quality inspection labs before container sealing.</p>
+            </div>
+            <a asp-action="DownloadBrochure" class="btn btn-outline-success btn-sm mt-3 mt-md-0">
+                <i class="fa-solid fa-file-pdf me-1"></i> Download PDF Specs Sheet
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle text-center small">
+                <thead class="table-dark" style="background-color: #0c2b18;">
+                    <tr>
+                        <th class="text-start" style="min-width: 170px;">Variety Name</th>
+                        <th>Category</th>
+                        <th>Grain Length (Raw AGL)</th>
+                        <th>Moisture (Max)</th>
+                        <th>Broken (Max)</th>
+                        <th>Chalky (Max)</th>
+                        <th>Admixture (Max)</th>
+                        <th>Elongation</th>
+                        <th>Aroma</th>
+                        <th>Indicative FOB</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var prod in Model)
+                    {
+                        <tr>
+                            <td class="text-start fw-bold text-dark">
+                                <div>@prod.Name</div>
+                                <span class="badge bg-light text-muted border" style="font-size: 0.68rem;">@prod.Code</span>
+                            </td>
+                            <td>
+                                <span class="badge @(prod.Category == "Basmati" ? "bg-success" : "bg-secondary")">@prod.Category</span>
+                            </td>
+                            <td class="fw-bold text-success fs-6">@prod.AverageLengthMm mm</td>
+                            <td>@prod.MoistureMaxPercent%</td>
+                            <td>@prod.BrokenMaxPercent%</td>
+                            <td>@prod.ChalkyMaxPercent%</td>
+                            <td>@prod.AdmixtureMaxPercent%</td>
+                            <td>@prod.ElongationRatio</td>
+                            <td class="small">@prod.AromaGrade</td>
+                            <td class="fw-bold text-dark">$@prod.DefaultFobPricePerMT.ToString("N0") /MT</td>
+                            <td>
+                                <a asp-action="ProductDetail" asp-route-id="@prod.Id" class="btn btn-xs btn-outline-dark" style="font-size: 0.75rem;">
+                                    Inquire
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Testing Methodologies -->
+    <div class="row g-4 mb-5">
+        <div class="col-12">
+            <h3 class="font-serif text-dark mb-3">APEDA & International Testing Methodologies</h3>
+        </div>
+        <div class="col-md-3">
+            <div class="p-4 bg-white rounded-4 border h-100">
+                <div class="text-success fs-2 mb-2"><i class="fa-solid fa-ruler-combined"></i></div>
+                <h5 class="fs-6 fw-bold text-dark">Average Grain Length (AGL)</h5>
+                <p class="text-muted small mb-0">Measured using digital photographic calipers across 100 whole uncooked grains to guarantee minimum variety thresholds (e.g. 8.35mm for 1121 Basmati).</p>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="p-4 bg-white rounded-4 border h-100">
+                <div class="text-primary fs-2 mb-2"><i class="fa-solid fa-droplet-percent"></i></div>
+                <h5 class="fs-6 fw-bold text-dark">Digital Moisture Analysis</h5>
+                <p class="text-muted small mb-0">Moisture measured with calibrated Kett Riceter moisture meters. Controlled strictly between 11.5% and 12.5% to ensure safety against fungal contamination during 30-day ocean voyages.</p>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="p-4 bg-white rounded-4 border h-100">
+                <div class="text-warning fs-2 mb-2"><i class="fa-solid fa-kitchen-set"></i></div>
+                <h5 class="fs-6 fw-bold text-dark">Cooking Elongation Test</h5>
+                <p class="text-muted small mb-0">Sample batch is boiled in water bath under standardized conditions. Length measured before and after cooking to guarantee elongation ratio of 2.0x to 2.5x with non-sticky grains.</p>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="p-4 bg-white rounded-4 border h-100">
+                <div class="text-info fs-2 mb-2"><i class="fa-solid fa-dna"></i></div>
+                <h5 class="fs-6 fw-bold text-dark">DNA Basmati Purity Test</h5>
+                <p class="text-muted small mb-0">Certified PCR laboratory testing verifying over 95% genetic purity of Basmati lines, guaranteeing zero adulteration with non-basmati lookalikes for EU and North American customs.</p>
+            </div>
+        </div>
+    </div>
+</div>

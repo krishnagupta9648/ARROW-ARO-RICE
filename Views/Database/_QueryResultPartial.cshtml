@@ -1,0 +1,68 @@
+@model ARROW_ARO_RICE.Models.QueryResultViewModel
+
+@if (!Model.Success)
+{
+    <div class="alert alert-danger d-flex align-items-center gap-2 mb-0" role="alert">
+        <i class="fa-solid fa-triangle-exclamation fs-5"></i>
+        <div>
+            <div class="fw-bold">Query Execution Failed</div>
+            <div class="small">@Model.ErrorMessage</div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+        <div class="small text-muted">
+            <i class="fa-solid fa-check text-success me-1"></i>
+            Query returned <strong>@Model.Rows.Count</strong> row(s) in <span class="badge bg-light text-dark border">@Model.ExecutionTimeMs ms</span>
+        </div>
+    </div>
+
+    @if (Model.Rows.Any())
+    {
+        <div class="table-responsive border rounded bg-white" style="max-height: 400px; overflow-y: auto;">
+            <table class="table table-sm table-hover table-striped mb-0 align-middle">
+                <thead class="table-dark sticky-top" style="font-size: 0.8rem;">
+                    <tr>
+                        @foreach (var col in Model.ColumnNames)
+                        {
+                            <th class="text-nowrap px-2 py-2">@col</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody style="font-size: 0.82rem;">
+                    @foreach (var row in Model.Rows)
+                    {
+                        <tr>
+                            @foreach (var col in Model.ColumnNames)
+                            {
+                                var val = row.ContainsKey(col) ? row[col] : null;
+                                <td class="text-nowrap px-2 py-1">
+                                    @if (val == null)
+                                    {
+                                        <span class="text-muted fst-italic">NULL</span>
+                                    }
+                                    else if (val is bool b)
+                                    {
+                                        <span class="badge @(b ? "bg-success" : "bg-secondary")">@(b ? "TRUE" : "FALSE")</span>
+                                    }
+                                    else
+                                    {
+                                        @val.ToString()
+                                    }
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info py-2 mb-0 small">
+            <i class="fa-solid fa-circle-info me-1"></i> Query executed successfully. 0 rows returned.
+        </div>
+    }
+}

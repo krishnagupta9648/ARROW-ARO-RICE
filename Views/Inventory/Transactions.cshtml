@@ -1,0 +1,64 @@
+@model List<ARROW_ARO_RICE.Models.StockTransaction>
+@{
+    ViewData["Title"] = "Stock Movement Ledger";
+    Layout = "_AdminLayout";
+}
+
+<div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <a asp-action="Index" class="btn btn-sm btn-outline-secondary mb-2">&larr; Back to Warehouse Stock</a>
+            <h5 class="font-serif text-dark mb-1">Stock Movement Audit Ledger</h5>
+            <p class="text-muted small mb-0">Complete historical tracking of inward arrivals, outward dispatches, and warehouse transfers.</p>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle small mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Type</th>
+                    <th>Warehouse</th>
+                    <th>Rice Variety</th>
+                    <th>Quantity (MT)</th>
+                    <th>Batch Number</th>
+                    <th>Reference Document</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var t in Model)
+                {
+                    <tr>
+                        <td class="text-muted">@t.CreatedAt.ToString("dd MMM yyyy HH:mm")</td>
+                        <td>
+                            @if (t.TransactionType == ARROW_ARO_RICE.Models.StockTransactionType.StockIn)
+                            {
+                                <span class="badge bg-success"><i class="fa-solid fa-arrow-down me-1"></i> Stock In</span>
+                            }
+                            else if (t.TransactionType == ARROW_ARO_RICE.Models.StockTransactionType.StockOut)
+                            {
+                                <span class="badge bg-danger"><i class="fa-solid fa-arrow-up me-1"></i> Stock Out</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">@t.TransactionType</span>
+                            }
+                        </td>
+                        <td class="fw-semibold">@t.Warehouse?.Name</td>
+                        <td>@t.Product?.Name</td>
+                        <td class="fw-bold fs-6 @(t.TransactionType == ARROW_ARO_RICE.Models.StockTransactionType.StockIn ? "text-success" : "text-danger")">
+                            @(t.TransactionType == ARROW_ARO_RICE.Models.StockTransactionType.StockIn ? "+" : "-")@t.QuantityMT.ToString("N1") MT
+                        </td>
+                        <td><span class="badge bg-light text-dark border font-monospace">@t.BatchNumber</span></td>
+                        <td><strong>@(t.ReferenceDocument ?? "N/A")</strong></td>
+                        <td class="text-muted small">@t.Notes</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

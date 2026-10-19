@@ -1,0 +1,106 @@
+@model ARROW_ARO_RICE.Models.Product
+@{
+    ViewData["Title"] = "Add Rice Variety";
+    Layout = "_AdminLayout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary mb-2">&larr; Back to Catalog</a>
+        <h4 class="font-serif text-dark mb-0">Add New Rice Variety</h4>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white max-w-800">
+    <form asp-action="Create" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="Name" class="form-label small fw-semibold">Variety Commercial Name *</label>
+                <input asp-for="Name" class="form-control" placeholder="e.g. 1718 Steam Basmati Rice" required />
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Code" class="form-label small fw-semibold">Product Code *</label>
+                <input asp-for="Code" class="form-control" placeholder="e.g. RICE-1718-STM" required />
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Category" class="form-label small fw-semibold">Category</label>
+                <select asp-for="Category" class="form-select">
+                    <option value="Basmati" selected>Basmati Rice</option>
+                    <option value="Non-Basmati">Non-Basmati Rice</option>
+                    <option value="Broken">100% Broken Rice</option>
+                    <option value="Organic">Organic Rice</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="ProcessingType" class="form-label small fw-semibold">Processing Method</label>
+                <select asp-for="ProcessingType" class="form-select">
+                    <option value="Steam" selected>Steam</option>
+                    <option value="Golden Sella">Golden Sella (Parboiled)</option>
+                    <option value="Creamy Sella">Creamy Sella</option>
+                    <option value="Raw / Milled">Raw / Milled Aged</option>
+                    <option value="Parboiled">Parboiled Double Polished</option>
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="AverageLengthMm" class="form-label small fw-semibold">Raw AGL (mm) *</label>
+                <input asp-for="AverageLengthMm" class="form-control" type="number" step="0.05" value="8.35" required />
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="MoistureMaxPercent" class="form-label small fw-semibold">Moisture Max (%) *</label>
+                <input asp-for="MoistureMaxPercent" class="form-control" type="number" step="0.1" value="12.5" required />
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="BrokenMaxPercent" class="form-label small fw-semibold">Broken Max (%) *</label>
+                <input asp-for="BrokenMaxPercent" class="form-control" type="number" step="0.1" value="1.0" required />
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="DefaultFobPricePerMT" class="form-label small fw-semibold">Benchmark FOB Price (USD/MT) *</label>
+                <input asp-for="DefaultFobPricePerMT" class="form-control" type="number" step="10" value="1100" required />
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="MinOrderQuantityMT" class="form-label small fw-semibold">MOQ (MT) *</label>
+                <input asp-for="MinOrderQuantityMT" class="form-control" type="number" step="1" value="25" required />
+            </div>
+
+            <div class="col-12">
+                <label asp-for="PackagingOptions" class="form-label small fw-semibold">Packaging Options Available *</label>
+                <input asp-for="PackagingOptions" class="form-control" value="10kg, 20kg, 25kg, 50kg in BOPP, Non-Woven & PP Bags" required />
+            </div>
+
+            <div class="col-12">
+                <label asp-for="Description" class="form-label small fw-semibold">Product Description *</label>
+                <textarea asp-for="Description" class="form-control" rows="3" placeholder="Characteristics, cooking texture, culinary uses..." required></textarea>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-check mt-3">
+                    <input asp-for="IsActive" class="form-check-input" checked />
+                    <label asp-for="IsActive" class="form-check-label small">Active for Export Catalog</label>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-check mt-3">
+                    <input asp-for="IsFeatured" class="form-check-input" checked />
+                    <label asp-for="IsFeatured" class="form-check-label small">Feature on Home Page</label>
+                </div>
+            </div>
+
+            <div class="col-12 mt-4">
+                <button type="submit" class="btn btn-gold btn-lg w-100">
+                    <i class="fa-solid fa-plus me-1"></i> Save Product to Catalog
+                </button>
+            </div>
+        </div>
+    </form>
+</div>

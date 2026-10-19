@@ -1,0 +1,244 @@
+@model ARROW_ARO_RICE.Models.Customer
+@{
+    ViewData["Title"] = $"Buyer Dossier: {Model.CompanyName}";
+    Layout = "_AdminLayout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary mb-2">&larr; Back to Buyer Directory</a>
+        <h4 class="font-serif text-dark mb-0">@Model.CompanyName</h4>
+        <span class="text-muted small"><i class="fa-solid fa-location-dot text-danger me-1"></i> @Model.City, @Model.Country | Registered since @Model.CreatedAt.ToString("MMMM yyyy")</span>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-controller="Quotations" asp-action="Create" asp-route-customerId="@Model.Id" class="btn btn-gold">
+            <i class="fa-solid fa-file-invoice-dollar me-1"></i> Create Quotation
+        </a>
+    </div>
+</div>
+
+<!-- Buyer Overview Card -->
+<div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="text-muted small">Primary Contact</div>
+            <div class="fw-bold fs-6 text-dark">@Model.ContactPerson</div>
+            <div class="small text-muted"><i class="fa-solid fa-envelope me-1"></i> @Model.Email</div>
+            <div class="small text-success"><i class="fa-brands fa-whatsapp me-1"></i> @Model.Phone</div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="text-muted small">Discharge Port & Terms</div>
+            <div class="fw-bold fs-6 text-dark">@(Model.PreferredDestinationPort ?? "Not set")</div>
+            <div class="small text-muted">@Model.PaymentTerms</div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="text-muted small">Tax / VAT & License</div>
+            <div class="fw-semibold text-dark">VAT: @(Model.TaxOrVatNumber ?? "N/A")</div>
+            <div class="small text-muted">Import Lic: @(Model.ImportLicenseNumber ?? "N/A")</div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="text-muted small">Credit Limit (USD)</div>
+            <div class="fw-bold fs-5 text-success">$@Model.CreditLimitUsd.ToString("N0")</div>
+            <span class="badge bg-success bg-opacity-10 text-success">@Model.Status</span>
+        </div>
+    </div>
+</div>
+
+<!-- Trade History Tabs -->
+<div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+    <ul class="nav nav-pills mb-4" id="buyerTabs" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active" id="orders-tab" data-bs-toggle="pill" data-bs-target="#orders" type="button" role="tab">
+                <i class="fa-solid fa-box-archive me-1"></i> Sales Orders (@Model.SalesOrders.Count)
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="quotes-tab" data-bs-toggle="pill" data-bs-target="#quotes" type="button" role="tab">
+                <i class="fa-solid fa-file-invoice-dollar me-1"></i> Quotations (@Model.Quotations.Count)
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="invoices-tab" data-bs-toggle="pill" data-bs-target="#invoices" type="button" role="tab">
+                <i class="fa-solid fa-receipt me-1"></i> Invoices & Payments (@Model.Invoices.Count)
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="inquiries-tab" data-bs-toggle="pill" data-bs-target="#inquiries" type="button" role="tab">
+                <i class="fa-solid fa-envelope-open-text me-1"></i> Inquiries (@Model.Inquiries.Count)
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="buyerTabsContent">
+        <!-- Sales Orders Tab -->
+        <div class="tab-pane fade show active" id="orders" role="tabpanel">
+            @if (!Model.SalesOrders.Any())
+            {
+                <p class="text-muted text-center py-4">No sales orders generated for this buyer yet.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle small mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Order No</th>
+                                <th>Date</th>
+                                <th>Discharge Port</th>
+                                <th>Total MT</th>
+                                <th>Amount (USD)</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var o in Model.SalesOrders)
+                            {
+                                <tr>
+                                    <td class="fw-bold">@o.OrderNumber</td>
+                                    <td>@o.OrderDate.ToString("dd MMM yyyy")</td>
+                                    <td>@o.PortOfDestination</td>
+                                    <td class="fw-bold">@o.TotalQuantityMT MT</td>
+                                    <td class="fw-bold text-success">$@o.TotalAmount.ToString("N0")</td>
+                                    <td><span class="badge-status badge-confirmed">@o.Status</span></td>
+                                    <td>
+                                        <a asp-controller="SalesOrders" asp-action="Details" asp-route-id="@o.Id" class="btn btn-xs btn-outline-dark">View</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <!-- Quotations Tab -->
+        <div class="tab-pane fade" id="quotes" role="tabpanel">
+            @if (!Model.Quotations.Any())
+            {
+                <p class="text-muted text-center py-4">No quotations on file for this buyer.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle small mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Quote No</th>
+                                <th>Date</th>
+                                <th>Valid Until</th>
+                                <th>Terms</th>
+                                <th>Grand Total</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var q in Model.Quotations)
+                            {
+                                <tr>
+                                    <td class="fw-bold">@q.QuotationNumber</td>
+                                    <td>@q.QuotationDate.ToString("dd MMM yyyy")</td>
+                                    <td>@q.ValidUntil.ToString("dd MMM yyyy")</td>
+                                    <td>@q.IncoTerm (@q.PortOfLoading &rarr; @q.DestinationPort)</td>
+                                    <td class="fw-bold text-dark">$@q.GrandTotal.ToString("N0")</td>
+                                    <td><span class="badge-status badge-@q.Status.ToString().ToLower()">@q.Status</span></td>
+                                    <td>
+                                        <a asp-controller="Quotations" asp-action="Details" asp-route-id="@q.Id" class="btn btn-xs btn-outline-dark">Proforma</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <!-- Invoices Tab -->
+        <div class="tab-pane fade" id="invoices" role="tabpanel">
+            @if (!Model.Invoices.Any())
+            {
+                <p class="text-muted text-center py-4">No commercial invoices generated for this buyer yet.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle small mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Invoice No</th>
+                                <th>Date</th>
+                                <th>Due Date</th>
+                                <th>Grand Total</th>
+                                <th>Paid</th>
+                                <th>Balance Due</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var inv in Model.Invoices)
+                            {
+                                <tr>
+                                    <td class="fw-bold">@inv.InvoiceNumber</td>
+                                    <td>@inv.InvoiceDate.ToString("dd MMM yyyy")</td>
+                                    <td>@inv.DueDate.ToString("dd MMM yyyy")</td>
+                                    <td class="fw-bold">$@inv.GrandTotal.ToString("N0")</td>
+                                    <td class="text-success">$@inv.PaidAmount.ToString("N0")</td>
+                                    <td class="fw-bold text-danger">$@inv.BalanceAmount.ToString("N0")</td>
+                                    <td><span class="badge bg-light text-dark border">@inv.Status</span></td>
+                                    <td>
+                                        <a asp-controller="Finance" asp-action="InvoiceDetails" asp-route-id="@inv.Id" class="btn btn-xs btn-outline-dark">Invoice</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <!-- Inquiries Tab -->
+        <div class="tab-pane fade" id="inquiries" role="tabpanel">
+            @if (!Model.Inquiries.Any())
+            {
+                <p class="text-muted text-center py-4">No past inquiries linked to this buyer.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle small mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Inquiry No</th>
+                                <th>Date</th>
+                                <th>Variety</th>
+                                <th>Volume</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var inq in Model.Inquiries)
+                            {
+                                <tr>
+                                    <td class="fw-bold">@inq.InquiryNumber</td>
+                                    <td>@inq.CreatedAt.ToString("dd MMM yyyy")</td>
+                                    <td>@inq.RiceVariety</td>
+                                    <td>@inq.QuantityMT MT</td>
+                                    <td><span class="badge-status badge-@inq.Status.ToString().ToLower()">@inq.Status</span></td>
+                                    <td>
+                                        <a asp-controller="Inquiries" asp-action="Details" asp-route-id="@inq.Id" class="btn btn-xs btn-outline-dark">Open</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

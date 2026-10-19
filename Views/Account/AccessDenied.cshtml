@@ -1,0 +1,16 @@
+@{
+    ViewData["Title"] = "Access Restricted";
+    Layout = "_Layout";
+}
+
+<div class="container py-5 text-center" style="min-height: 60vh; display: flex; align-items: center; justify-content: center;">
+    <div class="card border-0 shadow-sm rounded-4 p-5 max-w-500 bg-white">
+        <i class="fa-solid fa-lock text-danger fs-1 mb-3"></i>
+        <h3 class="font-serif text-dark mb-2">Access Denied</h3>
+        <p class="text-muted small mb-4">Your current system role does not have authorization to view this export management module. Please contact the system administrator or log in with appropriate credentials.</p>
+        <div class="d-flex justify-content-center gap-2">
+            <a asp-controller="Admin" asp-action="Index" class="btn btn-emerald btn-sm">Return to Dashboard</a>
+            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary btn-sm">Switch Account</a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,158 @@
+@model ARROW_ARO_RICE.Models.Inquiry
+@{
+    ViewData["Title"] = $"Inquiry Dossier: {Model.InquiryNumber}";
+    Layout = "_AdminLayout";
+    var users = ViewBag.SalesUsers as List<ARROW_ARO_RICE.Models.User> ?? new List<ARROW_ARO_RICE.Models.User>();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary mb-2">&larr; Back to Inquiries</a>
+        <h4 class="font-serif text-dark mb-0">Inquiry #@Model.InquiryNumber</h4>
+        <span class="text-muted small">Received on @Model.CreatedAt.ToString("dd MMMM yyyy HH:mm") UTC</span>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-controller="Quotations" asp-action="Create" asp-route-inquiryId="@Model.Id" class="btn btn-gold">
+            <i class="fa-solid fa-file-invoice-dollar me-1"></i> Generate Quotation
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Buyer & Order Requirements Summary -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                <h5 class="font-serif text-dark mb-0">Commercial RFQ Specifications</h5>
+                <span class="badge-status badge-@Model.Status.ToString().ToLower()">
+                    @Model.Status
+                </span>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="text-muted small">Buyer / Contact Person</div>
+                    <div class="fw-bold fs-6 text-dark">@Model.FullName</div>
+                    <div class="text-muted small">@(string.IsNullOrEmpty(Model.CompanyName) ? "Individual Trader" : Model.CompanyName)</div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small">Destination Country & Port</div>
+                    <div class="fw-bold fs-6 text-dark"><i class="fa-solid fa-location-dot text-danger me-1"></i> @Model.Country</div>
+                    <div class="text-muted small">Discharge Port: <strong>@Model.DestinationPort</strong></div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small">Email Address</div>
+                    <div class="fw-semibold"><a href="mailto:@Model.Email" class="text-decoration-none">@Model.Email</a></div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small">WhatsApp / Phone</div>
+                    <div class="fw-semibold">
+                        <a href="https://wa.me/@(Model.Phone.Replace("+","").Replace(" ",""))" target="_blank" class="text-success text-decoration-none">
+                            <i class="fa-brands fa-whatsapp me-1"></i> @Model.Phone
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small">Rice Variety Inquired</div>
+                    <div class="fw-bold text-success fs-6">@Model.RiceVariety</div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="text-muted small">Volume (MT)</div>
+                    <div class="fw-bold fs-6 text-dark">@Model.QuantityMT MT</div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="text-muted small">Trade Term</div>
+                    <div class="fw-bold fs-6 text-dark">@Model.IncoTerm</div>
+                </div>
+
+                <div class="col-12">
+                    <div class="text-muted small">Preferred Packaging</div>
+                    <div class="fw-semibold text-dark">@Model.PreferredPackaging</div>
+                </div>
+            </div>
+
+            <div class="p-3 bg-light rounded-3 border">
+                <div class="fw-bold text-dark mb-1 small text-uppercase" style="letter-spacing: 0.5px;"><i class="fa-solid fa-message text-warning me-1"></i> Buyer Message & Specific Requirements:</div>
+                <p class="mb-0 text-dark small" style="white-space: pre-wrap;">@Model.Message</p>
+            </div>
+        </div>
+
+        <!-- Internal CRM Notes Log -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <h5 class="font-serif text-dark mb-3"><i class="fa-solid fa-comments text-primary me-2"></i> Internal Sales & Negotiation Notes</h5>
+            @if (!string.IsNullOrEmpty(Model.InternalNotes))
+            {
+                <div class="p-3 bg-light rounded-3 border mb-3 small" style="white-space: pre-wrap; font-family: monospace;">@Model.InternalNotes</div>
+            }
+            else
+            {
+                <p class="text-muted small mb-3">No internal trade notes recorded yet. Add notes below.</p>
+            }
+        </div>
+    </div>
+
+    <!-- Right Control Sidecard -->
+    <div class="col-lg-4">
+        <!-- Update Status & Follow-Up Card -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <h5 class="font-serif text-dark mb-3">Update Lead Pipeline</h5>
+            <form asp-action="UpdateStatus" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Lead Status</label>
+                    <select name="status" class="form-select">
+                        @foreach (var s in Enum.GetValues<ARROW_ARO_RICE.Models.InquiryStatus>())
+                        {
+                            <option value="@s" selected="@(Model.Status == s)">@s</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Next Follow-Up Date</label>
+                    <input type="date" name="followUpDate" class="form-control" value="@(Model.FollowUpDate?.ToString("yyyy-MM-dd"))" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Add Follow-Up Note</label>
+                    <textarea name="internalNotes" class="form-control" rows="3" placeholder="e.g. Spoke to buyer on WhatsApp, agreed on CIF $1,150/MT, drafting proforma..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-emerald w-100">
+                    <i class="fa-solid fa-floppy-disk me-1"></i> Save Updates
+                </button>
+            </form>
+        </div>
+
+        <!-- Assign Sales Rep Card -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <h5 class="font-serif text-dark mb-3">Assign Account Executive</h5>
+            <form asp-action="Assign" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Assigned Sales Manager</label>
+                    <select name="userId" class="form-select">
+                        @foreach (var u in users)
+                        {
+                            <option value="@u.Id" selected="@(Model.AssignedToUserId == u.Id)">@u.FullName (@u.Role)</option>
+                        }
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-outline-dark w-100 btn-sm">
+                    Re-assign Lead
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

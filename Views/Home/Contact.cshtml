@@ -1,0 +1,201 @@
+@model ARROW_ARO_RICE.Models.ViewModels.InquiryFormModel
+@{
+    ViewData["Title"] = "Contact International Export Desk - Request Rice Quotation";
+}
+
+<div class="py-5" style="background: linear-gradient(135deg, #091f13, #154e29); color: #fff;">
+    <div class="container-xl">
+        <span class="badge bg-warning text-dark text-uppercase px-3 py-2 rounded-pill mb-2">Direct Importer Support</span>
+        <h1 class="display-4 font-serif text-white mb-2">Contact Global Export Desk</h1>
+        <p class="lead text-white-75 max-w-700">Submit your commercial purchase requirements, request container freight estimates, or speak with our international trade desk managers.</p>
+    </div>
+</div>
+
+<div class="container-xl py-5">
+    <div class="row g-5">
+        <!-- Inquiry & RFQ Form -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <span class="badge bg-success bg-opacity-10 text-success text-uppercase fw-bold px-3 py-1 rounded-pill mb-1">Official RFQ</span>
+                        <h3 class="font-serif text-dark mb-0">Request Export Price Quotation</h3>
+                    </div>
+                    <span class="text-muted small"><i class="fa-solid fa-clock me-1"></i> Response in 24h</span>
+                </div>
+
+                <form asp-action="SubmitInquiry" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="ProductId" />
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="FullName" class="form-label small fw-semibold">Your Full Name <span class="text-danger">*</span></label>
+                            <input asp-for="FullName" class="form-control" placeholder="e.g. Sheikh Ahmed Al-Mansoor" required />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="CompanyName" class="form-label small fw-semibold">Company / Importer Name</label>
+                            <input asp-for="CompanyName" class="form-control" placeholder="e.g. Al-Madina Foodstuff LLC" />
+                            <span asp-validation-for="CompanyName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label small fw-semibold">Business Email <span class="text-danger">*</span></label>
+                            <input asp-for="Email" class="form-control" placeholder="procurement@company.com" required />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Phone" class="form-label small fw-semibold">WhatsApp / Phone with Country Code <span class="text-danger">*</span></label>
+                            <input asp-for="Phone" class="form-control" placeholder="+971 50 123 4567" required />
+                            <span asp-validation-for="Phone" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Country" class="form-label small fw-semibold">Destination Country <span class="text-danger">*</span></label>
+                            <input asp-for="Country" class="form-control" placeholder="e.g. United Arab Emirates, Saudi Arabia" required />
+                            <span asp-validation-for="Country" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="DestinationPort" class="form-label small fw-semibold">Discharge Port <span class="text-danger">*</span></label>
+                            <input asp-for="DestinationPort" class="form-control" placeholder="e.g. Jebel Ali, Jeddah, Hamburg, Houston" required />
+                            <span asp-validation-for="DestinationPort" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="RiceVariety" class="form-label small fw-semibold">Rice Variety Required <span class="text-danger">*</span></label>
+                            <select asp-for="RiceVariety" class="form-select">
+                                <option value="1121 XXL Steam Basmati Rice">1121 XXL Steam Basmati Rice (8.35mm+)</option>
+                                <option value="1121 Golden Sella Basmati Rice">1121 Golden Sella Basmati Rice</option>
+                                <option value="1121 Creamy White Sella Basmati">1121 Creamy White Sella Basmati</option>
+                                <option value="1509 Steam Basmati Rice">1509 Steam Basmati Rice (8.40mm+)</option>
+                                <option value="Traditional Aged Raw Basmati">Traditional Aged Raw Basmati</option>
+                                <option value="Sugandha Steam Basmati Rice">Sugandha Steam Basmati Rice</option>
+                                <option value="Sharbati White Sella Basmati">Sharbati White Sella Basmati</option>
+                                <option value="Sona Masoori Raw Milled Rice">Sona Masoori Raw Milled Rice</option>
+                                <option value="IR64 Parboiled Rice (5% Broken)">IR64 Parboiled Rice (5% Broken)</option>
+                                <option value="PR11 / PR14 Steam Rice">PR11 / PR14 Steam Rice</option>
+                                <option value="100% Broken White Rice">100% Broken White Rice</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="QuantityMT" class="form-label small fw-semibold">Order Volume (in Metric Tons) <span class="text-danger">*</span></label>
+                            <input asp-for="QuantityMT" class="form-control" type="number" step="1" min="1" required />
+                            <span asp-validation-for="QuantityMT" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="IncoTerm" class="form-label small fw-semibold">Trade Terms (IncoTerms)</label>
+                            <select asp-for="IncoTerm" class="form-select">
+                                <option value="CIF" selected>CIF (Cost, Insurance & Freight to Port)</option>
+                                <option value="FOB">FOB (Mundra / Nhava Sheva Port, India)</option>
+                                <option value="CFR">CFR (Cost & Freight)</option>
+                                <option value="EXW">EXW (Mill Gate, Karnal)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="PreferredPackaging" class="form-label small fw-semibold">Packaging Preference</label>
+                            <select asp-for="PreferredPackaging" class="form-select">
+                                <option value="50 Kg PP Bags" selected>50 Kg PP Sacks (Standard Bulk)</option>
+                                <option value="40 Kg PP Bags">40 Kg PP Bags (Saudi Standard)</option>
+                                <option value="25 Kg Non-Woven">25 Kg Non-Woven Bags with Handle</option>
+                                <option value="10 Kg / 20 Kg BOPP">10/20 Kg BOPP Laminated Custom Bags</option>
+                                <option value="1kg/5kg Retail Pouches">1kg/5kg Retail Pouches in Master Cartons</option>
+                                <option value="Private Brand Packaging">Private Brand (Custom Printing)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Message" class="form-label small fw-semibold">Order Specifications & Message <span class="text-danger">*</span></label>
+                            <textarea asp-for="Message" class="form-control" rows="4" placeholder="Mention target delivery timeframe, payment terms (100% LC at sight or 30% advance + 70% against BL), lab certificates required, or request for physical sample lot..." required></textarea>
+                            <span asp-validation-for="Message" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <button type="submit" class="btn btn-gold btn-lg w-100">
+                                <i class="fa-solid fa-paper-plane me-2"></i> Submit Inquiry to Export Desk
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Contact Coordinates & Port Offices -->
+        <div class="col-lg-5">
+            <div class="p-4 p-md-5 rounded-4 bg-white border shadow-sm mb-4">
+                <h4 class="font-serif text-dark mb-4">Global Trade Coordinates</h4>
+
+                <div class="d-flex gap-3 mb-4">
+                    <div class="rounded-circle bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px;">
+                        <i class="fa-solid fa-building-wheat fs-5"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-dark mb-1">Milling & Processing Plants</h6>
+                        <p class="text-muted small mb-0">GT Karnal Road, Taraori Rice Belt, Karnal, Haryana 132116, India</p>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3 mb-4">
+                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px;">
+                        <i class="fa-solid fa-ship fs-5"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-dark mb-1">Mundra Port CFS Warehouse</h6>
+                        <p class="text-muted small mb-0">Near APSEZ CFS Zone, Port Road, Mundra, Kutch, Gujarat 370421, India</p>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3 mb-4">
+                    <div class="rounded-circle bg-warning bg-opacity-15 text-dark d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px;">
+                        <i class="fa-solid fa-anchor fs-5 text-warning"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-dark mb-1">Mumbai Port Logistics Hub</h6>
+                        <p class="text-muted small mb-0">Sector 11, Dronagiri CFS Node, JNPT, Navi Mumbai, Maharashtra 400707</p>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3 mb-4">
+                    <div class="rounded-circle bg-info bg-opacity-10 text-info d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px;">
+                        <i class="fa-solid fa-envelope fs-5"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-dark mb-1">Direct Export Emails</h6>
+                        <p class="text-muted small mb-0">
+                            <a href="mailto:export@arrowarorice.com" class="text-dark fw-semibold text-decoration-none">export@arrowarorice.com</a><br/>
+                            <a href="mailto:trade@arrowarorice.com" class="text-muted text-decoration-none">trade@arrowarorice.com</a>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3">
+                    <div class="rounded-circle bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px;">
+                        <i class="fa-brands fa-whatsapp fs-5"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-dark mb-1">Direct WhatsApp Trade Desk</h6>
+                        <p class="text-muted small mb-0">
+                            <a href="https://wa.me/919812044550?text=Hello%20Arrow%20Aro%20Rice,%20I%20am%20inquiring%20about%20importing%20rice." target="_blank" class="text-success fw-bold text-decoration-none">+91 98120 44550</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Download Profile Card -->
+            <div class="p-4 rounded-4 text-white text-center" style="background: linear-gradient(135deg, #091f13, #166534);">
+                <i class="fa-solid fa-file-pdf fs-1 text-warning mb-2"></i>
+                <h5 class="font-serif text-white mb-2">Company Export Profile 2026</h5>
+                <p class="text-white-75 small mb-3">Download our complete corporate brochure, processing infrastructure credentials, and variety catalogue.</p>
+                <a asp-action="DownloadBrochure" class="btn btn-warning btn-sm px-4 fw-bold text-dark">
+                    <i class="fa-solid fa-download me-1"></i> Download PDF Brochure
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

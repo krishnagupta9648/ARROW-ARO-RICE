@@ -1,0 +1,84 @@
+@model List<ARROW_ARO_RICE.Models.ActivityLog>
+@{
+    ViewData["Title"] = "System Audit & Activity Logs";
+    Layout = "_AdminLayout";
+    var selectedModule = ViewBag.SelectedModule as string ?? "All";
+    var search = ViewBag.SearchTerm as string ?? "";
+    var curPage = (int)ViewBag.CurrentPage;
+    var totalPages = (int)ViewBag.TotalPages;
+}
+
+<div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <h5 class="font-serif text-dark mb-1">Activity Log Trail</h5>
+            <p class="text-muted small mb-0">Immutable chronological record of export transactions, lead updates, shipments, and financial activities.</p>
+        </div>
+
+        <form asp-action="ActivityLogs" method="get" class="d-flex gap-2">
+            <select name="module" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="All" selected="@(selectedModule == "All")">All Modules</option>
+                <option value="Inquiry" selected="@(selectedModule == "Inquiry")">Inquiries</option>
+                <option value="Quotation" selected="@(selectedModule == "Quotation")">Quotations</option>
+                <option value="SalesOrder" selected="@(selectedModule == "SalesOrder")">Sales Orders</option>
+                <option value="Shipment" selected="@(selectedModule == "Shipment")">Shipments</option>
+                <option value="Inventory" selected="@(selectedModule == "Inventory")">Inventory</option>
+                <option value="Finance" selected="@(selectedModule == "Finance")">Finance</option>
+            </select>
+            <input type="text" name="search" value="@search" class="form-control form-control-sm" placeholder="Search details..." />
+            <button type="submit" class="btn btn-sm btn-emerald px-3">Filter</button>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle small mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Timestamp</th>
+                    <th>User</th>
+                    <th>Module</th>
+                    <th>Action</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var log in Model)
+                {
+                    <tr>
+                        <td class="text-muted" style="white-space: nowrap;">@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                        <td class="fw-semibold">@log.UserName</td>
+                        <td><span class="badge bg-light text-dark border">@log.Module</span></td>
+                        <td class="fw-bold text-success">@log.Action</td>
+                        <td>@log.Details</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages > 1)
+    {
+        <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+            <div class="small text-muted">Page @curPage of @totalPages</div>
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(curPage <= 1 ? "disabled" : "")">
+                        <a class="page-link" asp-action="ActivityLogs" asp-route-page="@(curPage - 1)" asp-route-module="@selectedModule" asp-route-search="@search">Previous</a>
+                    </li>
+                    @for (int p = 1; p <= totalPages; p++)
+                    {
+                        <li class="page-item @(p == curPage ? "active" : "")">
+                            <a class="page-link" asp-action="ActivityLogs" asp-route-page="@p" asp-route-module="@selectedModule" asp-route-search="@search">@p</a>
+                        </li>
+                    }
+                    <li class="page-item @(curPage >= totalPages ? "disabled" : "")">
+                        <a class="page-link" asp-action="ActivityLogs" asp-route-page="@(curPage + 1)" asp-route-module="@selectedModule" asp-route-search="@search">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+</div>

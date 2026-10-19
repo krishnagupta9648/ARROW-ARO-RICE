@@ -1,0 +1,107 @@
+@model List<ARROW_ARO_RICE.Models.ExportShipment>
+@{
+    ViewData["Title"] = "Export Shipments & Maritime Tracking";
+    Layout = "_AdminLayout";
+    var curMilestone = ViewBag.SelectedMilestone as string ?? "";
+    var search = ViewBag.SearchTerm as string ?? "";
+}
+
+<div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <h5 class="font-serif text-dark mb-1">Maritime Export Shipments & Container Tracking</h5>
+            <p class="text-muted small mb-0">Monitor high-seas vessel voyages, Mundra & JNPT container stuffing, SGS inspections, and original bills of lading.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Export" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1">
+                <i class="fa-solid fa-file-excel"></i> Export Shipments (CSV)
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Form -->
+    <form asp-action="Index" method="get" class="row g-2 mt-3 pt-3 border-top">
+        <div class="col-md-4">
+            <select name="milestone" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">All Voyage Milestones</option>
+                @foreach (var m in Enum.GetValues<ARROW_ARO_RICE.Models.ShipmentMilestone>())
+                {
+                    <option value="@m" selected="@(curMilestone == m.ToString())">@m</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-6">
+            <input type="text" name="search" value="@search" class="form-control form-control-sm" placeholder="Search by shipment no, container, B/L, or vessel..." />
+        </div>
+        <div class="col-md-2 d-flex gap-1">
+            <button type="submit" class="btn btn-sm btn-emerald w-100">Filter</button>
+            @if (!string.IsNullOrEmpty(curMilestone) || !string.IsNullOrEmpty(search))
+            {
+                <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Reset</a>
+            }
+        </div>
+    </form>
+</div>
+
+<!-- Shipments Table -->
+<div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle small mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Shipment No</th>
+                    <th>Buyer / Sales Order</th>
+                    <th>Shipping Line</th>
+                    <th>Vessel & Voyage</th>
+                    <th>Containers & B/L</th>
+                    <th>Route</th>
+                    <th>Current Status</th>
+                    <th>Milestone</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="9" class="text-center py-4 text-muted">No export shipments found.</td>
+                    </tr>
+                }
+                @foreach (var s in Model)
+                {
+                    <tr>
+                        <td class="fw-bold text-success fs-6">@s.ShipmentNumber</td>
+                        <td>
+                            <div class="fw-bold text-dark">@s.SalesOrder?.Customer?.CompanyName</div>
+                            <span class="text-muted" style="font-size: 0.72rem;">Order: @s.SalesOrder?.OrderNumber</span>
+                        </td>
+                        <td>
+                            <span class="fw-semibold text-dark"><i class="fa-solid fa-ship text-secondary me-1"></i> @s.ShippingLine</span>
+                        </td>
+                        <td>
+                            <div class="fw-semibold">@s.VesselName</div>
+                            <small class="text-muted">Voyage: @s.VoyageNumber</small>
+                        </td>
+                        <td>
+                            <div class="small font-monospace">@s.ContainerNumbers</div>
+                            <span class="badge bg-light text-muted border" style="font-size: 0.7rem;">B/L: @s.BillOfLadingNumber</span>
+                        </td>
+                        <td>
+                            <span class="text-muted">@s.PortOfLoading</span> &rarr;
+                            <strong class="text-dark">@s.PortOfDestination</strong>
+                        </td>
+                        <td class="small text-muted" style="max-width: 180px;">@s.StatusDescription</td>
+                        <td>
+                            <span class="badge-status badge-intransit">@s.CurrentMilestone</span>
+                        </td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@s.Id" class="btn btn-xs btn-outline-dark">
+                                Track
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,137 @@
+@model List<ARROW_ARO_RICE.Models.Invoice>
+@{
+    ViewData["Title"] = "Commercial Invoices & Accounts Receivable";
+    Layout = "_AdminLayout";
+    var curStatus = ViewBag.SelectedStatus as string ?? "";
+    var search = ViewBag.SearchTerm as string ?? "";
+    var totalBilled = Model.Sum(i => i.GrandTotal);
+    var totalPaid = Model.Sum(i => i.PaidAmount);
+    var totalReceivable = Model.Sum(i => i.BalanceAmount);
+}
+
+<!-- Receivables KPI Summary -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="kpi-card">
+            <div class="kpi-label">Total Commercial Billing</div>
+            <div class="kpi-value text-dark">$@totalBilled.ToString("N0")</div>
+            <div class="small text-muted">Across all export sales orders</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="kpi-card">
+            <div class="kpi-label">Remittances Collected</div>
+            <div class="kpi-value text-success">$@totalPaid.ToString("N0")</div>
+            <div class="small text-muted">Via Swift T/T & Letters of Credit</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="kpi-card">
+            <div class="kpi-label">Outstanding Receivables</div>
+            <div class="kpi-value text-danger">$@totalReceivable.ToString("N0")</div>
+            <div class="small text-muted">Against original B/L release</div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <h5 class="font-serif text-dark mb-1">Commercial Invoices & Export Billing</h5>
+            <p class="text-muted small mb-0">Track international client invoices, wire transfers, LC negotiations, and outstanding balances.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="ExportInvoices" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1">
+                <i class="fa-solid fa-file-excel"></i> Export Invoices (CSV)
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Form -->
+    <form asp-action="Invoices" method="get" class="row g-2 mt-3 pt-3 border-top">
+        <div class="col-md-4">
+            <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">All Payment Statuses</option>
+                <option value="Paid" selected="@(curStatus == "Paid")">Paid in Full</option>
+                <option value="PartiallyPaid" selected="@(curStatus == "PartiallyPaid")">Partially Paid</option>
+                <option value="Unpaid" selected="@(curStatus == "Unpaid")">Unpaid</option>
+                <option value="Overdue" selected="@(curStatus == "Overdue")">Overdue</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <input type="text" name="search" value="@search" class="form-control form-control-sm" placeholder="Search by invoice number, customer or order number..." />
+        </div>
+        <div class="col-md-2 d-flex gap-1">
+            <button type="submit" class="btn btn-sm btn-emerald w-100">Filter</button>
+            @if (!string.IsNullOrEmpty(curStatus) || !string.IsNullOrEmpty(search))
+            {
+                <a asp-action="Invoices" class="btn btn-sm btn-outline-secondary">Reset</a>
+            }
+        </div>
+    </form>
+</div>
+
+<!-- Invoices Table -->
+<div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle small mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Invoice No</th>
+                    <th>Date</th>
+                    <th>Due Date</th>
+                    <th>Order No</th>
+                    <th>Customer</th>
+                    <th>Grand Total</th>
+                    <th>Paid Amount</th>
+                    <th>Balance Due</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="10" class="text-center py-4 text-muted">No commercial invoices found.</td>
+                    </tr>
+                }
+                @foreach (var inv in Model)
+                {
+                    <tr>
+                        <td class="fw-bold text-success fs-6">@inv.InvoiceNumber</td>
+                        <td>@inv.InvoiceDate.ToString("dd MMM yyyy")</td>
+                        <td>@inv.DueDate.ToString("dd MMM yyyy")</td>
+                        <td><span class="badge bg-light text-dark border">@inv.SalesOrder?.OrderNumber</span></td>
+                        <td>
+                            <div class="fw-bold text-dark">@inv.Customer?.CompanyName</div>
+                            <span class="text-muted" style="font-size: 0.72rem;">@inv.Customer?.Country</span>
+                        </td>
+                        <td class="fw-bold fs-6 text-dark">$@inv.GrandTotal.ToString("N0") <span class="small text-muted">@inv.Currency</span></td>
+                        <td class="fw-bold text-success">$@inv.PaidAmount.ToString("N0")</td>
+                        <td class="fw-bold @(inv.BalanceAmount > 0 ? "text-danger" : "text-muted") fs-6">$@inv.BalanceAmount.ToString("N0")</td>
+                        <td>
+                            @if (inv.Status == "Paid")
+                            {
+                                <span class="badge bg-success bg-opacity-10 text-success fw-bold">Paid</span>
+                            }
+                            else if (inv.Status == "PartiallyPaid")
+                            {
+                                <span class="badge bg-warning bg-opacity-15 text-dark fw-bold">Partially Paid</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger bg-opacity-10 text-danger fw-bold">@inv.Status</span>
+                            }
+                        </td>
+                        <td>
+                            <a asp-action="InvoiceDetails" asp-route-id="@inv.Id" class="btn btn-xs btn-outline-dark">
+                                View & Pay
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
