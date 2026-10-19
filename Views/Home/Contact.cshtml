@@ -1,6 +1,9 @@
 @model ARROW_ARO_RICE.Models.ViewModels.InquiryFormModel
+@inject ARROW_ARO_RICE.Data.ApplicationDbContext DbContext
 @{
     ViewData["Title"] = "Contact International Export Desk - Request Rice Quotation";
+    var siteSettings = DbContext.WebsiteSettings.FirstOrDefault() ?? new ARROW_ARO_RICE.Models.WebsiteSetting();
+    var cleanWhatsApp = (siteSettings.WhatsAppNumber ?? "").Replace(" ", "").Replace("+", "").Replace("-", "");
 }
 
 <div class="py-5" style="background: linear-gradient(135deg, #091f13, #154e29); color: #fff;">
@@ -137,7 +140,7 @@
                     </div>
                     <div>
                         <h6 class="fw-bold text-dark mb-1">Milling & Processing Plants</h6>
-                        <p class="text-muted small mb-0">GT Karnal Road, Taraori Rice Belt, Karnal, Haryana 132116, India</p>
+                        <p class="text-muted small mb-0">@siteSettings.KarnalMillingAddress</p>
                     </div>
                 </div>
 
@@ -147,7 +150,7 @@
                     </div>
                     <div>
                         <h6 class="fw-bold text-dark mb-1">Mundra Port CFS Warehouse</h6>
-                        <p class="text-muted small mb-0">Near APSEZ CFS Zone, Port Road, Mundra, Kutch, Gujarat 370421, India</p>
+                        <p class="text-muted small mb-0">@siteSettings.MundraPortAddress</p>
                     </div>
                 </div>
 
@@ -157,7 +160,7 @@
                     </div>
                     <div>
                         <h6 class="fw-bold text-dark mb-1">Mumbai Port Logistics Hub</h6>
-                        <p class="text-muted small mb-0">Sector 11, Dronagiri CFS Node, JNPT, Navi Mumbai, Maharashtra 400707</p>
+                        <p class="text-muted small mb-0">@siteSettings.JnptPortAddress</p>
                     </div>
                 </div>
 
@@ -168,8 +171,7 @@
                     <div>
                         <h6 class="fw-bold text-dark mb-1">Direct Export Emails</h6>
                         <p class="text-muted small mb-0">
-                            <a href="mailto:export@arrowarorice.com" class="text-dark fw-semibold text-decoration-none">export@arrowarorice.com</a><br/>
-                            <a href="mailto:trade@arrowarorice.com" class="text-muted text-decoration-none">trade@arrowarorice.com</a>
+                            <a href="mailto:@siteSettings.SupportEmail" class="text-dark fw-semibold text-decoration-none">@siteSettings.SupportEmail</a>
                         </p>
                     </div>
                 </div>
@@ -181,7 +183,7 @@
                     <div>
                         <h6 class="fw-bold text-dark mb-1">Direct WhatsApp Trade Desk</h6>
                         <p class="text-muted small mb-0">
-                            <a href="https://wa.me/919812044550?text=Hello%20Arrow%20Aro%20Rice,%20I%20am%20inquiring%20about%20importing%20rice." target="_blank" class="text-success fw-bold text-decoration-none">+91 98120 44550</a>
+                            <a href="https://wa.me/@cleanWhatsApp?text=Hello%20Arrow%20Aro%20Rice,%20I%20am%20inquiring%20about%20importing%20rice." target="_blank" class="text-success fw-bold text-decoration-none">@siteSettings.WhatsAppNumber</a>
                         </p>
                     </div>
                 </div>

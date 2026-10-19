@@ -112,4 +112,178 @@ public class AdminController : Controller
 
         return View(logs);
     }
+
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Settings()
+    {
+        var settings = await _db.WebsiteSettings.FirstOrDefaultAsync();
+        if (settings == null)
+        {
+            settings = new WebsiteSetting();
+            _db.WebsiteSettings.Add(settings);
+            await _db.SaveChangesAsync();
+        }
+        return View(settings);
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Settings(WebsiteSetting model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var settings = await _db.WebsiteSettings.FirstOrDefaultAsync();
+        if (settings == null)
+        {
+            model.LastUpdatedAt = DateTime.UtcNow;
+            _db.WebsiteSettings.Add(model);
+        }
+        else
+        {
+            settings.CompanyName = model.CompanyName;
+            settings.Tagline = model.Tagline;
+            settings.SupportEmail = model.SupportEmail;
+            settings.SupportPhone = model.SupportPhone;
+            settings.WhatsAppNumber = model.WhatsAppNumber;
+            settings.HeadOfficeAddress = model.HeadOfficeAddress;
+            settings.KarnalMillingAddress = model.KarnalMillingAddress;
+            settings.MundraPortAddress = model.MundraPortAddress;
+            settings.JnptPortAddress = model.JnptPortAddress;
+            settings.AnnualMillingCapacityMT = model.AnnualMillingCapacityMT;
+            settings.YearsOfHeritage = model.YearsOfHeritage;
+            settings.CountriesExported = model.CountriesExported;
+            settings.TopbarAnnouncement = model.TopbarAnnouncement;
+            settings.LastUpdatedAt = DateTime.UtcNow;
+        }
+
+        _db.ActivityLogs.Add(new ActivityLog
+        {
+            UserName = User.Identity?.Name ?? "Admin",
+            Action = "Website Settings Updated",
+            Module = "Administration",
+            Details = "Updated global company contact details, port logistics addresses, and public announcement.",
+            Timestamp = DateTime.UtcNow
+        });
+
+        await _db.SaveChangesAsync();
+        TempData["SuccessMessage"] = "Website CMS & company configuration saved successfully.";
+        return RedirectToAction(nameof(Settings));
+    }
+
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Users()
+    {
+        var users = await _db.Users.OrderByDescending(u => u.CreatedAt).ToListAsync();
+        return View(users);
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateUser(string fullName, string username, string email, string password, UserRole role, string? department)
+    {
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        {
+            TempData["ErrorMessage"] = "Username, email, and password are required.";
+            return RedirectToAction(nameof(Users));
+        }
+
+        var normalizedEmail = email.Trim().ToLower();
+        var normalizedUser = username.Trim().ToLower();
+
+        if (await _db.Users.AnyAsync(u => u.Email.ToLower() == normalizedEmail || u.Username.ToLower() == normalizedUser))
+        {
+            TempData["ErrorMessage"] = "A user with this username or email already exists.";
+            return RedirectToAction(nameof(Users));
+        }
+
+        var user = new User
+        {
+            FullName = fullName.Trim(),
+            Username = normalizedUser,
+            Email = normalizedEmail,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
+            Role = role,
+            Department = department,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _db.Users.Add(user);
+        _db.ActivityLogs.Add(new ActivityLog
+        {
+            UserName = User.Identity?.Name ?? "Admin",
+            Action = "Staff User Created",
+            Module = "Administration",
+            Details = $"Created staff account for {user.FullName} ({user.Role}) in {user.Department ?? "Operations"}.",
+            Timestamp = DateTime.UtcNow
+        });
+
+        await _db.SaveChangesAsync();
+        TempData["SuccessMessage"] = $"Staff account for '{user.FullName}' created successfully.";
+        return RedirectToAction(nameof(Users));
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleUser(int id)
+    {
+        var user = await _db.Users.FindAsync(id);
+        if (user == null) return NotFound();
+
+        if (User.Identity?.Name != null && user.Username.Equals(User.Identity.Name, StringComparison.OrdinalIgnoreCase))
+        {
+            TempData["ErrorMessage"] = "You cannot deactivate your own active session account.";
+            return RedirectToAction(nameof(Users));
+        }
+
+        user.IsActive = !user.IsActive;
+
+        _db.ActivityLogs.Add(new ActivityLog
+        {
+            UserName = User.Identity?.Name ?? "Admin",
+            Action = user.IsActive ? "Staff Activated" : "Staff Deactivated",
+            Module = "Administration",
+            Details = $"{(user.IsActive ? "Activated" : "Deactivated")} staff login for {user.FullName} ({user.Username}).",
+            Timestamp = DateTime.UtcNow
+        });
+
+        await _db.SaveChangesAsync();
+        TempData["SuccessMessage"] = $"User '{user.FullName}' status set to {(user.IsActive ? "Active" : "Inactive")}.";
+        return RedirectToAction(nameof(Users));
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        var user = await _db.Users.FindAsync(id);
+        if (user == null) return NotFound();
+
+        if (User.Identity?.Name != null && user.Username.Equals(User.Identity.Name, StringComparison.OrdinalIgnoreCase))
+        {
+            TempData["ErrorMessage"] = "You cannot delete your own active administrator account.";
+            return RedirectToAction(nameof(Users));
+        }
+
+        _db.Users.Remove(user);
+        _db.ActivityLogs.Add(new ActivityLog
+        {
+            UserName = User.Identity?.Name ?? "Admin",
+            Action = "Staff User Deleted",
+            Module = "Administration",
+            Details = $"Deleted staff account: {user.FullName} ({user.Username}, {user.Role}).",
+            Timestamp = DateTime.UtcNow
+        });
+
+        await _db.SaveChangesAsync();
+        TempData["SuccessMessage"] = $"Staff user '{user.FullName}' deleted successfully.";
+        return RedirectToAction(nameof(Users));
+    }
 }

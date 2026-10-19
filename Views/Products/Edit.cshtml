@@ -1,0 +1,136 @@
+@model ARROW_ARO_RICE.Models.Product
+@{
+    ViewData["Title"] = $"Edit Rice Variety - {Model.Name}";
+    Layout = "_AdminLayout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary mb-2">&larr; Back to Catalog</a>
+        <h4 class="font-serif text-dark mb-0">Edit Rice Variety: <span class="text-primary">@Model.Name</span></h4>
+        <span class="text-muted small">Update laboratory parameters, pricing benchmarks, or website visibility.</span>
+    </div>
+    <div class="d-flex gap-2">
+        <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Are you sure you want to delete/archive this product?');">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-outline-danger btn-sm">
+                <i class="fa-solid fa-trash me-1"></i> Delete Product
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white max-w-800">
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="Name" class="form-label small fw-semibold">Variety Commercial Name *</label>
+                <input asp-for="Name" class="form-control" required />
+                <span asp-validation-for="Name" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Code" class="form-label small fw-semibold">Product Code *</label>
+                <input asp-for="Code" class="form-control" required />
+                <span asp-validation-for="Code" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Category" class="form-label small fw-semibold">Category</label>
+                <select asp-for="Category" class="form-select">
+                    <option value="Basmati">Basmati Rice</option>
+                    <option value="Non-Basmati">Non-Basmati Rice</option>
+                    <option value="Broken">100% Broken Rice</option>
+                    <option value="Organic">Organic Rice</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="ProcessingType" class="form-label small fw-semibold">Processing Method</label>
+                <select asp-for="ProcessingType" class="form-select">
+                    <option value="Steam">Steam</option>
+                    <option value="Golden Sella (Parboiled)">Golden Sella (Parboiled)</option>
+                    <option value="Creamy Sella">Creamy Sella</option>
+                    <option value="Raw / Milled (Aged 2 Years)">Raw / Milled Aged</option>
+                    <option value="Parboiled / Double Polished">Parboiled Double Polished</option>
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="AverageLengthMm" class="form-label small fw-semibold">Raw AGL (mm) *</label>
+                <input asp-for="AverageLengthMm" class="form-control" type="number" step="0.05" required />
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="MoistureMaxPercent" class="form-label small fw-semibold">Moisture Max (%) *</label>
+                <input asp-for="MoistureMaxPercent" class="form-control" type="number" step="0.1" required />
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="BrokenMaxPercent" class="form-label small fw-semibold">Broken Max (%) *</label>
+                <input asp-for="BrokenMaxPercent" class="form-control" type="number" step="0.1" required />
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="ChalkyMaxPercent" class="form-label small fw-semibold">Chalky Max (%)</label>
+                <input asp-for="ChalkyMaxPercent" class="form-control" type="number" step="0.1" />
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="ForeignMatterMaxPercent" class="form-label small fw-semibold">Foreign Matter Max (%)</label>
+                <input asp-for="ForeignMatterMaxPercent" class="form-control" type="number" step="0.01" />
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="AdmixtureMaxPercent" class="form-label small fw-semibold">Admixture Max (%)</label>
+                <input asp-for="AdmixtureMaxPercent" class="form-control" type="number" step="0.1" />
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="DefaultFobPricePerMT" class="form-label small fw-semibold">Benchmark FOB Price (USD/MT) *</label>
+                <input asp-for="DefaultFobPricePerMT" class="form-control" type="number" step="10" required />
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="MinOrderQuantityMT" class="form-label small fw-semibold">MOQ (MT) *</label>
+                <input asp-for="MinOrderQuantityMT" class="form-control" type="number" step="1" required />
+            </div>
+
+            <div class="col-12">
+                <label asp-for="PackagingOptions" class="form-label small fw-semibold">Packaging Options Available *</label>
+                <input asp-for="PackagingOptions" class="form-control" required />
+            </div>
+
+            <div class="col-12">
+                <label asp-for="Description" class="form-label small fw-semibold">Export Commercial Description</label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="col-12">
+                <label asp-for="Highlights" class="form-label small fw-semibold">Key Highlights (Semicolon separated)</label>
+                <input asp-for="Highlights" class="form-control" />
+            </div>
+
+            <div class="col-12">
+                <div class="d-flex gap-4 p-3 bg-light rounded-3">
+                    <div class="form-check form-switch">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" id="isActiveSwitch">
+                        <label class="form-check-label fw-semibold" for="isActiveSwitch">Active in Catalog & Trading</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input asp-for="IsFeatured" class="form-check-input" type="checkbox" id="isFeaturedSwitch">
+                        <label class="form-check-label fw-semibold" for="isFeaturedSwitch">Featured on Website Homepage</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 d-flex justify-content-end gap-2 pt-3">
+                <a asp-action="Index" class="btn btn-secondary px-4">Cancel</a>
+                <button type="submit" class="btn btn-emerald px-5">Save Changes</button>
+            </div>
+        </div>
+    </form>
+</div>

@@ -165,4 +165,51 @@ public class CustomersController : Controller
 
         return File(bytes, "text/csv", $"ArrowAroRice_Buyers_{DateTime.UtcNow:yyyyMMdd}.csv");
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var customer = await _db.Customers
+            .Include(c => c.Inquiries)
+            .Include(c => c.Quotations)
+            .Include(c => c.SalesOrders)
+            .Include(c => c.Invoices)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (customer == null) return NotFound();
+
+        // If customer has orders or quotes, archive rather than hard deleting to maintain financial ledger
+        if (customer.SalesOrders.Any() || customer.Invoices.Any() || customer.Quotations.Any())
+        {
+            customer.Status = "Archived";
+            await _db.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"Buyer '{customer.CompanyName}' has associated contracts/invoices and has been marked as Archived.";
+        }
+        else
+        {
+            if (customer.Inquiries.Any())
+            {
+                foreach (var inq in customer.Inquiries)
+                {
+                    inq.CustomerId = null;
+                }
+            }
+            _db.Customers.Remove(customer);
+            await _db.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"Buyer '{customer.CompanyName}' was permanently deleted.";
+        }
+
+        _db.ActivityLogs.Add(new ActivityLog
+        {
+            UserName = User.Identity?.Name ?? "User",
+            Action = "Customer Deleted",
+            Module = "Customer",
+            Details = $"Customer {customer.CompanyName} ({customer.Country}) deleted/archived.",
+            Timestamp = DateTime.UtcNow
+        });
+        await _db.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Index));
+    }
 }

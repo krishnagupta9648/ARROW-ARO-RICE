@@ -129,4 +129,59 @@ public class SalesOrdersController : Controller
         TempData["SuccessMessage"] = $"Purchase Order {po.PoNumber} created successfully.";
         return RedirectToAction(nameof(PurchaseOrders));
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var order = await _db.SalesOrders
+            .Include(so => so.Shipments)
+            .Include(so => so.Invoices)
+            .Include(so => so.Expenses)
+            .Include(so => so.Items)
+            .FirstOrDefaultAsync(so => so.Id == id);
+
+        if (order == null) return NotFound();
+
+        if (order.Shipments.Any() || order.Invoices.Any(i => i.PaidAmount > 0))
+        {
+            order.Status = SalesOrderStatus.Cancelled;
+            await _db.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"Sales Order #{order.OrderNumber} has active shipments or paid invoices and has been marked as Cancelled.";
+        }
+        else
+        {
+            if (order.Expenses.Any()) _db.OrderExpenses.RemoveRange(order.Expenses);
+            if (order.Invoices.Any()) _db.Invoices.RemoveRange(order.Invoices);
+            if (order.Items.Any()) _db.SalesOrderItems.RemoveRange(order.Items);
+            _db.SalesOrders.Remove(order);
+            await _db.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"Sales Order #{order.OrderNumber} was deleted successfully.";
+        }
+
+        _db.ActivityLogs.Add(new ActivityLog
+        {
+            UserName = User.Identity?.Name ?? "User",
+            Action = "Sales Order Deleted",
+            Module = "SalesOrder",
+            Details = $"Sales Order {order.OrderNumber} was deleted or cancelled.",
+            Timestamp = DateTime.UtcNow
+        });
+        await _db.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeletePurchaseOrder(int id)
+    {
+        var po = await _db.PurchaseOrders.FindAsync(id);
+        if (po == null) return NotFound();
+
+        _db.PurchaseOrders.Remove(po);
+        await _db.SaveChangesAsync();
+        TempData["SuccessMessage"] = $"Purchase Order #{po.PoNumber} deleted.";
+        return RedirectToAction(nameof(PurchaseOrders));
+    }
 }

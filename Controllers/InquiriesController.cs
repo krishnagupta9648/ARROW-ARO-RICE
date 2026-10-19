@@ -167,4 +167,26 @@ public class InquiriesController : Controller
 
         return File(bytes, "text/csv", $"ArrowAroRice_Inquiries_{DateTime.UtcNow:yyyyMMdd}.csv");
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var inquiry = await _db.Inquiries.FindAsync(id);
+        if (inquiry == null) return NotFound();
+
+        _db.Inquiries.Remove(inquiry);
+        _db.ActivityLogs.Add(new ActivityLog
+        {
+            UserName = User.Identity?.Name ?? "User",
+            Action = "Inquiry Deleted",
+            Module = "Inquiry",
+            Details = $"Inquiry {inquiry.InquiryNumber} from {inquiry.FullName} ({inquiry.Country}) was deleted.",
+            Timestamp = DateTime.UtcNow
+        });
+
+        await _db.SaveChangesAsync();
+        TempData["SuccessMessage"] = $"Inquiry {inquiry.InquiryNumber} was deleted successfully.";
+        return RedirectToAction(nameof(Index));
+    }
 }

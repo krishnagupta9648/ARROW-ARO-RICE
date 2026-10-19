@@ -29,6 +29,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<PaymentReceipt> PaymentReceipts => Set<PaymentReceipt>();
     public DbSet<OrderExpense> OrderExpenses => Set<OrderExpense>();
     public DbSet<ActivityLog> ActivityLogs => Set<ActivityLog>();
+    public DbSet<WebsiteSetting> WebsiteSettings => Set<WebsiteSetting>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

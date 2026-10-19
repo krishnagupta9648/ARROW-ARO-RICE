@@ -30,7 +30,8 @@
                     <th>FOB Base Price</th>
                     <th>MOQ</th>
                     <th>Total Stock</th>
-                    <th>Status</th>
+                    <th>Visibility</th>
+                    <th class="text-end pe-3">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -55,14 +56,36 @@
                             @totalStock.ToString("N0") MT
                         </td>
                         <td>
-                            @if (p.IsActive)
-                            {
-                                <span class="badge bg-success bg-opacity-10 text-success">Active</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-danger bg-opacity-10 text-danger">Inactive</span>
-                            }
+                            <div class="d-flex flex-column gap-1">
+                                <span class="badge @(p.IsActive ? "bg-success bg-opacity-10 text-success" : "bg-danger bg-opacity-10 text-danger")">
+                                    @(p.IsActive ? "Active" : "Archived")
+                                </span>
+                                @if (p.IsFeatured)
+                                {
+                                    <span class="badge bg-warning bg-opacity-25 text-dark" style="font-size: 0.7rem;">
+                                        <i class="fa-solid fa-star text-warning me-1"></i> Featured
+                                    </span>
+                                }
+                            </div>
+                        </td>
+                        <td class="text-end pe-3">
+                            <div class="btn-group btn-group-sm">
+                                <a asp-action="Edit" asp-route-id="@p.Id" class="btn btn-outline-primary" title="Edit Rice Variety">
+                                    <i class="fa-solid fa-pen-to-square"></i> Edit
+                                </a>
+                                <form asp-action="ToggleFeatured" asp-route-id="@p.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-warning" title="@(p.IsFeatured ? "Unfeature from home" : "Feature on home")">
+                                        <i class="fa-solid fa-star @(p.IsFeatured ? "text-warning" : "text-muted")"></i>
+                                    </button>
+                                </form>
+                                <form asp-action="Delete" asp-route-id="@p.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete or deactivate this product?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-danger" title="Delete or Archive Product">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 }

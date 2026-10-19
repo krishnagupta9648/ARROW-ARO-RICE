@@ -103,10 +103,18 @@
                 <i class="fa-solid fa-chart-line"></i> Profitability Reports
             </a>
 
-            <!-- SYSTEM & DATABASE -->
+            <!-- SYSTEM & ADMINISTRATION -->
             @if (User.IsInRole("Admin"))
             {
-                <div class="nav-section-title">System & Database</div>
+                <div class="nav-section-title">System & Administration</div>
+                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["Action"]?.ToString() == "Settings" ? "active" : "")" 
+                   asp-controller="Admin" asp-action="Settings">
+                    <i class="fa-solid fa-sliders text-warning"></i> Website CMS & Settings
+                </a>
+                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["Action"]?.ToString() == "Users" ? "active" : "")" 
+                   asp-controller="Admin" asp-action="Users">
+                    <i class="fa-solid fa-users-gear text-info"></i> Staff & Access Control
+                </a>
                 <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Database" ? "active" : "")" 
                    asp-controller="Database" asp-action="Index">
                     <i class="fa-solid fa-database text-warning"></i> Database Studio & Hub

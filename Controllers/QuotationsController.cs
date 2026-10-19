@@ -295,4 +295,38 @@ public class QuotationsController : Controller
         TempData["SuccessMessage"] = $"Quotation converted to Sales Order #{orderNumber}! Commercial Invoice #{invoice.InvoiceNumber} generated.";
         return RedirectToAction("Details", "SalesOrders", new { id = salesOrder.Id });
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var quotation = await _db.Quotations
+            .Include(q => q.Items)
+            .Include(q => q.ConvertedSalesOrder)
+            .FirstOrDefaultAsync(q => q.Id == id);
+
+        if (quotation == null) return NotFound();
+
+        if (quotation.ConvertedSalesOrder != null)
+        {
+            TempData["ErrorMessage"] = $"Cannot delete quotation #{quotation.QuotationNumber} because it has already been converted into Sales Order #{quotation.ConvertedSalesOrder.OrderNumber}.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        _db.QuotationItems.RemoveRange(quotation.Items);
+        _db.Quotations.Remove(quotation);
+
+        _db.ActivityLogs.Add(new ActivityLog
+        {
+            UserName = User.Identity?.Name ?? "User",
+            Action = "Quotation Deleted",
+            Module = "Quotation",
+            Details = $"Quotation {quotation.QuotationNumber} deleted.",
+            Timestamp = DateTime.UtcNow
+        });
+
+        await _db.SaveChangesAsync();
+        TempData["SuccessMessage"] = $"Quotation #{quotation.QuotationNumber} deleted successfully.";
+        return RedirectToAction(nameof(Index));
+    }
 }

@@ -1,6 +1,8 @@
+@inject ARROW_ARO_RICE.Data.ApplicationDbContext DbContext
 @{
     ViewData["Title"] = "Premium Indian Basmati & Non-Basmati Rice Exporters";
     var featured = ViewBag.FeaturedProducts as List<Product> ?? new List<Product>();
+    var siteSettings = DbContext.WebsiteSettings.FirstOrDefault() ?? new ARROW_ARO_RICE.Models.WebsiteSetting();
 }
 
 <!-- Hero Section -->
@@ -72,13 +74,13 @@
         <div class="row g-4 text-center">
             <div class="col-md-3 col-6">
                 <div class="p-3">
-                    <div class="fs-1 fw-bold text-success mb-1">45,000+</div>
+                    <div class="fs-1 fw-bold text-success mb-1">@(siteSettings.AnnualMillingCapacityMT > 0 ? siteSettings.AnnualMillingCapacityMT.ToString("N0") + "+" : "150,000+")</div>
                     <div class="text-uppercase fw-semibold text-muted small" style="letter-spacing: 1px;">MT Annual Milling</div>
                 </div>
             </div>
             <div class="col-md-3 col-6">
                 <div class="p-3">
-                    <div class="fs-1 fw-bold text-success mb-1">45+</div>
+                    <div class="fs-1 fw-bold text-success mb-1">@(string.IsNullOrWhiteSpace(siteSettings.CountriesExported) ? "45+" : siteSettings.CountriesExported)</div>
                     <div class="text-uppercase fw-semibold text-muted small" style="letter-spacing: 1px;">Export Destinations</div>
                 </div>
             </div>

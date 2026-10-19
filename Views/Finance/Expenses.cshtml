@@ -62,13 +62,14 @@
                     <th>Invoice / Receipt Ref</th>
                     <th>Amount (USD)</th>
                     <th>Remarks</th>
+                    <th class="text-end">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @if (!Model.Any())
                 {
                     <tr>
-                        <td colspan="7" class="text-center py-4 text-muted">No expenses recorded.</td>
+                        <td colspan="8" class="text-center py-4 text-muted">No expenses recorded.</td>
                     </tr>
                 }
                 @foreach (var exp in Model)
@@ -84,6 +85,15 @@
                         <td class="font-monospace">@(exp.InvoiceOrReceiptNumber ?? "N/A")</td>
                         <td class="fw-bold fs-6 text-danger">$@exp.Amount.ToString("N2")</td>
                         <td class="text-muted small">@exp.Remarks</td>
+                        <td class="text-end">
+                            <form asp-action="DeleteExpense" method="post" class="d-inline" onsubmit="return confirm('Permanently remove this expense entry?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@exp.Id" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Expense">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                 }
             </tbody>

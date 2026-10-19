@@ -66,6 +66,16 @@
                 <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> View Order (@Model.ConvertedSalesOrder.OrderNumber)
             </a>
         }
+
+        @if (Model.ConvertedSalesOrder == null)
+        {
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this quotation?');">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                    <i class="fa-solid fa-trash me-1"></i> Delete
+                </button>
+            </form>
+        }
     </div>
 </div>
 

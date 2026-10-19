@@ -9,8 +9,32 @@ public static class DbInitializer
     {
         await db.Database.EnsureCreatedAsync();
 
+        await db.Database.ExecuteSqlRawAsync(@"
+            CREATE TABLE IF NOT EXISTS ""WebsiteSettings"" (
+                ""Id"" INTEGER NOT NULL CONSTRAINT ""PK_WebsiteSettings"" PRIMARY KEY AUTOINCREMENT,
+                ""CompanyName"" TEXT NOT NULL,
+                ""Tagline"" TEXT NULL,
+                ""SupportEmail"" TEXT NOT NULL,
+                ""SupportPhone"" TEXT NOT NULL,
+                ""WhatsAppNumber"" TEXT NULL,
+                ""HeadOfficeAddress"" TEXT NULL,
+                ""KarnalMillingAddress"" TEXT NULL,
+                ""MundraPortAddress"" TEXT NULL,
+                ""JnptPortAddress"" TEXT NULL,
+                ""AnnualMillingCapacityMT"" INTEGER NOT NULL,
+                ""YearsOfHeritage"" TEXT NULL,
+                ""CountriesExported"" TEXT NULL,
+                ""TopbarAnnouncement"" TEXT NULL,
+                ""LastUpdatedAt"" TEXT NOT NULL
+            );");
+
         if (await db.Users.AnyAsync())
         {
+            if (!await db.WebsiteSettings.AnyAsync())
+            {
+                db.WebsiteSettings.Add(new WebsiteSetting());
+                await db.SaveChangesAsync();
+            }
             return; // DB has been seeded
         }
 

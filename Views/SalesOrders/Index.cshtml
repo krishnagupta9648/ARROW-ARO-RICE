@@ -101,10 +101,18 @@
                                 @o.Status
                             </span>
                         </td>
-                        <td>
-                            <a asp-action="Details" asp-route-id="@o.Id" class="btn btn-xs btn-outline-dark">
-                                Manage
-                            </a>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm">
+                                <a asp-action="Details" asp-route-id="@o.Id" class="btn btn-outline-dark" title="Manage Order">
+                                    <i class="fa-solid fa-folder-open"></i> Manage
+                                </a>
+                                <form asp-action="Delete" asp-route-id="@o.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete or cancel this order?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-danger" title="Delete or Cancel Order">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 }

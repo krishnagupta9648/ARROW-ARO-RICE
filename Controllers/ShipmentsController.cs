@@ -224,4 +224,48 @@ public class ShipmentsController : Controller
 
         return File(bytes, "text/csv", $"ArrowAroRice_Shipments_{DateTime.UtcNow:yyyyMMdd}.csv");
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var shipment = await _db.ExportShipments
+            .Include(s => s.Documents)
+            .FirstOrDefaultAsync(s => s.Id == id);
+
+        if (shipment == null) return NotFound();
+
+        if (shipment.Documents.Any())
+        {
+            _db.ShipmentDocuments.RemoveRange(shipment.Documents);
+        }
+
+        _db.ExportShipments.Remove(shipment);
+
+        _db.ActivityLogs.Add(new ActivityLog
+        {
+            UserName = User.Identity?.Name ?? "User",
+            Action = "Export Shipment Deleted",
+            Module = "Shipment",
+            Details = $"Shipment {shipment.ShipmentNumber} ({shipment.VesselName}) was deleted.",
+            Timestamp = DateTime.UtcNow
+        });
+
+        await _db.SaveChangesAsync();
+        TempData["SuccessMessage"] = $"Shipment #{shipment.ShipmentNumber} was deleted successfully.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteDocument(int docId, int shipmentId)
+    {
+        var doc = await _db.ShipmentDocuments.FirstOrDefaultAsync(d => d.Id == docId && d.ExportShipmentId == shipmentId);
+        if (doc == null) return NotFound();
+
+        _db.ShipmentDocuments.Remove(doc);
+        await _db.SaveChangesAsync();
+        TempData["SuccessMessage"] = $"Document '{doc.Title}' was removed.";
+        return RedirectToAction(nameof(Details), new { id = shipmentId });
+    }
 }

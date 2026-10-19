@@ -6,6 +6,16 @@
     var products = ViewBag.Products as List<ARROW_ARO_RICE.Models.Product> ?? new List<ARROW_ARO_RICE.Models.Product>();
 }
 
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h5 class="font-serif text-dark mb-0">Storage & Processing Facilities</h5>
+        <small class="text-muted">Manage global milling hubs, port warehouses, and inland storage godowns.</small>
+    </div>
+    <button type="button" class="btn btn-sm btn-outline-dark d-inline-flex align-items-center gap-1 shadow-sm" data-bs-toggle="modal" data-bs-target="#addWarehouseModal">
+        <i class="fa-solid fa-plus text-gold"></i> Add Warehouse Facility
+    </button>
+</div>
+
 <!-- Warehouses Summary Cards -->
 <div class="row g-3 mb-4">
     @foreach (var wh in warehouses)
@@ -29,9 +39,20 @@
                     <div class="progress-bar bg-success" role="progressbar" style="width: @pct%;" aria-valuenow="@pct" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
 
-                <div class="pt-2 border-top text-muted small d-flex justify-content-between">
-                    <span>Contact: @wh.ContactPerson</span>
-                    <span class="text-dark fw-semibold">@wh.Phone</span>
+                <div class="pt-2 border-top text-muted small d-flex justify-content-between align-items-center">
+                    <div>
+                        <span>Contact: @wh.ContactPerson</span> &bull; <span class="text-dark fw-semibold">@wh.Phone</span>
+                    </div>
+                    @if (whTotalStock == 0)
+                    {
+                        <form asp-action="DeleteWarehouse" method="post" class="d-inline" onsubmit="return confirm('Remove warehouse facility @wh.Name?');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@wh.Id" />
+                            <button type="submit" class="btn btn-xs btn-outline-danger" title="Delete Warehouse">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
+                    }
                 </div>
             </div>
         </div>
@@ -96,10 +117,19 @@
                         <td>@s.PackagingType</td>
                         <td class="text-muted">@s.LastUpdated.ToString("dd MMM yyyy")</td>
                         <td>
-                            <button type="button" class="btn btn-xs btn-outline-danger" 
-                                    onclick="openStockOutModal(@s.Id, '@s.Product?.Name', '@s.Warehouse?.Name', @s.AvailableMT)">
-                                Dispatch
-                            </button>
+                            <div class="d-flex gap-1">
+                                <button type="button" class="btn btn-xs btn-outline-danger" 
+                                        onclick="openStockOutModal(@s.Id, '@s.Product?.Name', '@s.Warehouse?.Name', @s.AvailableMT)">
+                                    Dispatch
+                                </button>
+                                <form asp-action="DeleteStock" method="post" class="d-inline" onsubmit="return confirm('Permanently remove this stock batch?');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@s.Id" />
+                                    <button type="submit" class="btn btn-xs btn-outline-secondary" title="Delete Stock Entry">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 }
@@ -211,6 +241,59 @@
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-danger btn-sm px-3">Confirm Dispatch</button>
+                </div>
+            </form>
+        </div>
+    </div>
+<!-- Add Warehouse Modal -->
+<div class="modal fade" id="addWarehouseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-dark text-white" style="background: linear-gradient(135deg, #091f13, #154e29) !important;">
+                <h5 class="modal-title font-serif text-white">Add Warehouse Storage Facility</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="CreateWarehouse" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-8">
+                            <label class="form-label small fw-semibold">Warehouse Name *</label>
+                            <input type="text" name="name" class="form-control" placeholder="e.g. Mundra Port CFS Terminal 4" required />
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label small fw-semibold">Code</label>
+                            <input type="text" name="code" class="form-control" placeholder="e.g. WH-MUN-02" />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">City *</label>
+                            <input type="text" name="city" class="form-control" placeholder="e.g. Mundra" required />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">State / Province *</label>
+                            <input type="text" name="state" class="form-control" placeholder="e.g. Gujarat" required />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Address / Location</label>
+                            <input type="text" name="location" class="form-control" placeholder="Plot No. 45, Port SEZ Road..." />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">Total Capacity (MT) *</label>
+                            <input type="number" step="100" name="capacityMT" class="form-control" value="5000" required />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">Contact Person</label>
+                            <input type="text" name="contactPerson" class="form-control" placeholder="Warehouse Manager" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Contact Phone / Mobile</label>
+                            <input type="text" name="phone" class="form-control" placeholder="+91 98765 43210" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-gold btn-sm px-3">Create Facility</button>
                 </div>
             </form>
         </div>

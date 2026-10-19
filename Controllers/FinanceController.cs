@@ -166,6 +166,21 @@ public class FinanceController : Controller
         return RedirectToAction(nameof(Expenses), new { salesOrderId });
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteExpense(int id)
+    {
+        var expense = await _db.OrderExpenses.FindAsync(id);
+        if (expense == null) return NotFound();
+
+        var orderId = expense.SalesOrderId;
+        _db.OrderExpenses.Remove(expense);
+        await _db.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "Expense record deleted successfully.";
+        return RedirectToAction(nameof(Expenses), new { salesOrderId = orderId });
+    }
+
     public async Task<IActionResult> Profitability()
     {
         var orders = await _db.SalesOrders

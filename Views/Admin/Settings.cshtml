@@ -1,0 +1,128 @@
+@model ARROW_ARO_RICE.Models.WebsiteSetting
+@{
+    ViewData["Title"] = "Website CMS & Global Company Settings";
+    Layout = "_AdminLayout";
+}
+
+<div class="row justify-content-center">
+    <div class="col-xl-10">
+        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                <div>
+                    <span class="badge bg-gold text-dark mb-1">Content Management System</span>
+                    <h3 class="font-serif text-dark mb-1">Website CMS & Global Settings</h3>
+                    <p class="text-muted small mb-0">Control the brand identity, public contact numbers, port facilities, and promotional announcements displayed across the website.</p>
+                </div>
+                <div class="text-end text-muted small">
+                    <div>Last Updated:</div>
+                    <strong class="text-dark">@Model.LastUpdatedAt.ToString("dd MMM yyyy, HH:mm") UTC</strong>
+                </div>
+            </div>
+
+            <form asp-action="Settings" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+
+                <!-- Section: Brand & Announcements -->
+                <h5 class="font-serif text-dark mb-3 border-start border-4 border-gold ps-2">1. Brand Identity & Header Banner</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="CompanyName" class="form-label small fw-semibold">Company Name *</label>
+                        <input asp-for="CompanyName" class="form-control" required />
+                        <span asp-validation-for="CompanyName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Tagline" class="form-label small fw-semibold">Company Tagline / Subtitle</label>
+                        <input asp-for="Tagline" class="form-control" />
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="TopbarAnnouncement" class="form-label small fw-semibold">Top Bar Public Announcement (Appears on all website pages)</label>
+                        <input asp-for="TopbarAnnouncement" class="form-control font-monospace" placeholder="e.g. APEDA Registered Star Export House | ISO 22000 & HACCP Certified..." />
+                        <small class="text-muted">This announcement banner is displayed at the very top of all public pages.</small>
+                    </div>
+                </div>
+
+                <!-- Section: Public Communications -->
+                <h5 class="font-serif text-dark mb-3 border-start border-4 border-gold ps-2">2. Global Contact & WhatsApp Inquiries</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label asp-for="SupportEmail" class="form-label small fw-semibold">Primary Export Inquiries Email *</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="fa-solid fa-envelope"></i></span>
+                            <input asp-for="SupportEmail" type="email" class="form-control" required />
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="SupportPhone" class="form-label small fw-semibold">Direct Telephone Line *</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="fa-solid fa-phone"></i></span>
+                            <input asp-for="SupportPhone" class="form-control" required />
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="WhatsAppNumber" class="form-label small fw-semibold">WhatsApp Business Number (With Country Code)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-success"><i class="fa-brands fa-whatsapp"></i></span>
+                            <input asp-for="WhatsAppNumber" class="form-control" placeholder="+91 98120 44550" />
+                        </div>
+                        <small class="text-muted">Powers the live WhatsApp floating inquiry widget on the site.</small>
+                    </div>
+                </div>
+
+                <!-- Section: Physical Facilities & Logistics Hubs -->
+                <h5 class="font-serif text-dark mb-3 border-start border-4 border-gold ps-2">3. Corporate Offices & Port Logistics Hubs</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="HeadOfficeAddress" class="form-label small fw-semibold">Corporate Head Office Address</label>
+                        <textarea asp-for="HeadOfficeAddress" class="form-control" rows="2"></textarea>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="KarnalMillingAddress" class="form-label small fw-semibold">Milling Complex & Sorting Plant</label>
+                        <textarea asp-for="KarnalMillingAddress" class="form-control" rows="2"></textarea>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="MundraPortAddress" class="form-label small fw-semibold">Mundra Port CFS Facility (Gujarat)</label>
+                        <textarea asp-for="MundraPortAddress" class="form-control" rows="2"></textarea>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="JnptPortAddress" class="form-label small fw-semibold">JNPT Port Logistics Hub (Navi Mumbai)</label>
+                        <textarea asp-for="JnptPortAddress" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <!-- Section: Homepage Credibility Metrics -->
+                <h5 class="font-serif text-dark mb-3 border-start border-4 border-gold ps-2">4. Credibility & Trade Capacity Counters</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label asp-for="AnnualMillingCapacityMT" class="form-label small fw-semibold">Annual Milling Capacity (MT)</label>
+                        <input asp-for="AnnualMillingCapacityMT" type="number" class="form-control" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="YearsOfHeritage" class="form-label small fw-semibold">Years of Milling Heritage</label>
+                        <input asp-for="YearsOfHeritage" class="form-control" placeholder="e.g. 25+" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="CountriesExported" class="form-label small fw-semibold">Countries Exported To</label>
+                        <input asp-for="CountriesExported" class="form-control" placeholder="e.g. 45+" />
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                    <button type="submit" class="btn btn-gold px-4 shadow-sm">
+                        <i class="fa-solid fa-floppy-disk me-1"></i> Save Changes to Website
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

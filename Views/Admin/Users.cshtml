@@ -1,0 +1,163 @@
+@model List<ARROW_ARO_RICE.Models.User>
+@{
+    ViewData["Title"] = "Staff & Access Control Management";
+    Layout = "_AdminLayout";
+}
+
+<div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-gold text-dark">Security & Governance</span>
+                <span class="badge bg-light text-muted border">@Model.Count Staff Accounts</span>
+            </div>
+            <h4 class="font-serif text-dark mb-1">Staff Accounts & Role-Based Permissions</h4>
+            <p class="text-muted small mb-0">Manage internal team access to CRM leads, quotations, inventory dispatch, and financial accounting.</p>
+        </div>
+
+        <button type="button" class="btn btn-gold btn-sm d-inline-flex align-items-center gap-1 shadow-sm" data-bs-toggle="modal" data-bs-target="#createUserModal">
+            <i class="fa-solid fa-user-plus"></i> Add Staff Account
+        </button>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle small mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Staff Member</th>
+                    <th>Username</th>
+                    <th>Email Address</th>
+                    <th>Role & Permissions</th>
+                    <th>Department</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="avatar-circle bg-dark text-gold fw-bold" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                    @(string.IsNullOrWhiteSpace(user.FullName) ? "U" : user.FullName.Substring(0, 1).ToUpper())
+                                </div>
+                                <strong class="text-dark">@user.FullName</strong>
+                            </div>
+                        </td>
+                        <td class="font-monospace">@user.Username</td>
+                        <td><a href="mailto:@user.Email" class="text-decoration-none text-muted">@user.Email</a></td>
+                        <td>
+                            @switch (user.Role)
+                            {
+                                case ARROW_ARO_RICE.Models.UserRole.Admin:
+                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger">Admin (Full Control)</span>
+                                    break;
+                                case ARROW_ARO_RICE.Models.UserRole.Sales:
+                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary">Sales & CRM</span>
+                                    break;
+                                case ARROW_ARO_RICE.Models.UserRole.Inventory:
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success">Inventory & Logistics</span>
+                                    break;
+                                case ARROW_ARO_RICE.Models.UserRole.Accounts:
+                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning">Finance & Invoicing</span>
+                                    break;
+                            }
+                        </td>
+                        <td class="text-muted">@(user.Department ?? "Operations")</td>
+                        <td>
+                            @if (user.IsActive)
+                            {
+                                <span class="badge bg-success bg-opacity-10 text-success"><i class="fa-solid fa-circle-check me-1"></i>Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary"><i class="fa-solid fa-circle-xmark me-1"></i>Inactive</span>
+                            }
+                        </td>
+                        <td class="text-muted">@user.CreatedAt.ToString("dd MMM yyyy")</td>
+                        <td class="text-end">
+                            <div class="d-flex gap-1 justify-content-end">
+                                <form asp-action="ToggleUser" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@user.Id" />
+                                    <button type="submit" class="btn btn-xs @(user.IsActive ? "btn-outline-warning" : "btn-outline-success")" title="@(user.IsActive ? "Deactivate" : "Activate") Account">
+                                        <i class="fa-solid @(user.IsActive ? "fa-ban" : "fa-check")"></i>
+                                    </button>
+                                </form>
+
+                                <form asp-action="DeleteUser" method="post" class="d-inline" onsubmit="return confirm('Permanently delete staff user @user.FullName?');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@user.Id" />
+                                    <button type="submit" class="btn btn-xs btn-outline-danger" title="Delete User">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal: Create User -->
+<div class="modal fade" id="createUserModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-dark text-white" style="background: linear-gradient(135deg, #091f13, #154e29) !important;">
+                <h5 class="modal-title font-serif text-white">Create Staff Member Account</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="CreateUser" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Full Name *</label>
+                        <input type="text" name="fullName" class="form-control" placeholder="e.g. Amit Kumar" required />
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">Username *</label>
+                            <input type="text" name="username" class="form-control" placeholder="e.g. akumar" required />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">Email Address *</label>
+                            <input type="email" name="email" class="form-control" placeholder="e.g. akumar@arrowarorice.com" required />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Temporary Password *</label>
+                        <input type="password" name="password" class="form-control" placeholder="Minimum 6 characters" required />
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">System Role *</label>
+                            <select name="role" class="form-select" required>
+                                <option value="Sales">Sales & CRM</option>
+                                <option value="Inventory">Inventory & Logistics</option>
+                                <option value="Accounts">Finance & Accounts</option>
+                                <option value="Admin">Administrator (Full Access)</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">Department</label>
+                            <input type="text" name="department" class="form-control" placeholder="e.g. International Sales" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-gold btn-sm px-3">Create Staff Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -164,6 +164,115 @@ public class InventoryController : Controller
         return View(list);
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateWarehouse(string name, string? code, string location, string city, string state, decimal capacityMT, string? contactPerson, string? phone)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            TempData["ErrorMessage"] = "Warehouse name is required.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var warehouse = new Warehouse
+        {
+            Name = name.Trim(),
+            Code = string.IsNullOrWhiteSpace(code) ? $"WH-{DateTime.UtcNow:yyMM}-{Guid.NewGuid().ToString()[..4].ToUpper()}" : code.Trim().ToUpper(),
+            Location = location ?? "Industrial Area",
+            City = string.IsNullOrWhiteSpace(city) ? "Karnal" : city.Trim(),
+            State = string.IsNullOrWhiteSpace(state) ? "Haryana" : state.Trim(),
+            CapacityMT = capacityMT > 0 ? capacityMT : 5000,
+            ContactPerson = contactPerson,
+            Phone = phone,
+            IsActive = true
+        };
+
+        _db.Warehouses.Add(warehouse);
+        _db.ActivityLogs.Add(new ActivityLog
+        {
+            UserName = User.Identity?.Name ?? "User",
+            Action = "Warehouse Created",
+            Module = "Inventory",
+            Details = $"Created warehouse facility {warehouse.Name} ({warehouse.Code}) with capacity {warehouse.CapacityMT} MT.",
+            Timestamp = DateTime.UtcNow
+        });
+
+        await _db.SaveChangesAsync();
+        TempData["SuccessMessage"] = $"Warehouse '{warehouse.Name}' added successfully.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteWarehouse(int id)
+    {
+        var warehouse = await _db.Warehouses
+            .Include(w => w.Stocks)
+            .FirstOrDefaultAsync(w => w.Id == id);
+
+        if (warehouse == null) return NotFound();
+
+        if (warehouse.Stocks != null && warehouse.Stocks.Any(s => s.QuantityMT > 0))
+        {
+            TempData["ErrorMessage"] = "Cannot delete warehouse facility while it holds active physical rice stocks. Please dispatch or transfer stocks first.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (warehouse.Stocks != null && warehouse.Stocks.Any())
+        {
+            _db.InventoryStocks.RemoveRange(warehouse.Stocks);
+        }
+
+        _db.Warehouses.Remove(warehouse);
+        _db.ActivityLogs.Add(new ActivityLog
+        {
+            UserName = User.Identity?.Name ?? "User",
+            Action = "Warehouse Deleted",
+            Module = "Inventory",
+            Details = $"Deleted warehouse facility: {warehouse.Name} ({warehouse.Code})",
+            Timestamp = DateTime.UtcNow
+        });
+
+        await _db.SaveChangesAsync();
+        TempData["SuccessMessage"] = $"Warehouse '{warehouse.Name}' removed successfully.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteStock(int id)
+    {
+        var stock = await _db.InventoryStocks
+            .Include(s => s.Product)
+            .Include(s => s.Warehouse)
+            .FirstOrDefaultAsync(s => s.Id == id);
+
+        if (stock == null) return NotFound();
+
+        if (stock.ReservedMT > 0)
+        {
+            TempData["ErrorMessage"] = $"Cannot remove stock batch '{stock.BatchNumber}' because {stock.ReservedMT} MT is currently reserved for export orders.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var batch = stock.BatchNumber;
+        var prodName = stock.Product?.Name;
+        _db.InventoryStocks.Remove(stock);
+
+        _db.ActivityLogs.Add(new ActivityLog
+        {
+            UserName = User.Identity?.Name ?? "User",
+            Action = "Stock Batch Deleted",
+            Module = "Inventory",
+            Details = $"Deleted inventory batch {batch} ({prodName})",
+            Timestamp = DateTime.UtcNow
+        });
+
+        await _db.SaveChangesAsync();
+        TempData["SuccessMessage"] = $"Stock batch '{batch}' removed successfully.";
+        return RedirectToAction(nameof(Index));
+    }
+
     public async Task<IActionResult> Export()
     {
         var stocks = await _db.InventoryStocks
