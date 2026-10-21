@@ -1,0 +1,9 @@
+{
+  "name": "arrow-aro-rice",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ARROW ARO RICE - Indian Basmati & Non-Basmati Rice Exporters",
+  "scripts": {
+    "build": "echo Building static deployment"
+  }
+}
