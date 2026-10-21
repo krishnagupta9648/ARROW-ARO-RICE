@@ -1,16 +1,121 @@
 @{
     ViewData["Title"] = "Access Restricted";
-    Layout = "_Layout";
+    Layout = User.Identity?.IsAuthenticated == true ? "_AdminLayout" : "_Layout";
+    var returnUrl = ViewBag.ReturnUrl as string ?? "";
+    var currentRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Guest";
+    var currentName = User.Identity?.Name ?? "Unauthenticated User";
 }
 
-<div class="container py-5 text-center" style="min-height: 60vh; display: flex; align-items: center; justify-content: center;">
-    <div class="card border-0 shadow-sm rounded-4 p-5 max-w-500 bg-white">
-        <i class="fa-solid fa-lock text-danger fs-1 mb-3"></i>
-        <h3 class="font-serif text-dark mb-2">Access Denied</h3>
-        <p class="text-muted small mb-4">Your current system role does not have authorization to view this export management module. Please contact the system administrator or log in with appropriate credentials.</p>
+<div class="py-4 px-2" style="display: flex; align-items: center; justify-content: center; min-height: 70vh;">
+    <div class="card border-0 shadow rounded-4 bg-white p-4 p-md-5" style="max-width: 620px; width: 100%;">
+        <div class="text-center mb-4">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10 text-danger mb-3" style="width: 72px; height: 72px;">
+                <i class="fa-solid fa-shield-halved fs-1"></i>
+            </div>
+            <h3 class="font-serif text-dark mb-1">Access Restricted</h3>
+            <p class="text-muted small mb-0">Role-Based Access Control (RBAC) Governance Policy</p>
+        </div>
+
+        <!-- Security Context Summary Box -->
+        <div class="p-3 bg-light rounded-3 border mb-4 small">
+            <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
+                <span class="text-muted">Current Logged-in User:</span>
+                <strong class="text-dark">@currentName</strong>
+            </div>
+            <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
+                <span class="text-muted">Assigned System Role:</span>
+                <span class="badge bg-warning text-dark fw-bold">@currentRole</span>
+            </div>
+            @if (!string.IsNullOrEmpty(returnUrl))
+            {
+                <div class="d-flex justify-content-between align-items-center py-1">
+                    <span class="text-muted">Restricted Module:</span>
+                    <span class="font-monospace text-danger small">@returnUrl</span>
+                </div>
+            }
+        </div>
+
+        <p class="text-muted small text-center mb-4">
+            ARROW ARO RICE ERP enforces role-level security to maintain international export audit compliance and segregation of duties. Your current role <strong>(@currentRole)</strong> does not have permission for this module.
+        </p>
+
+        <!-- Demo Account Quick Switcher -->
+        <div class="card border border-primary border-opacity-25 rounded-3 bg-light p-3 mb-4">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="fa-solid fa-users-gear text-primary"></i>
+                <strong class="small text-dark">Quick Role Switcher (Demo Mode)</strong>
+            </div>
+            <p class="small text-muted mb-3" style="font-size: 0.78rem;">
+                Select an authorized account below to automatically switch credentials and unlock this module:
+            </p>
+
+            <div class="row g-2">
+                <div class="col-6">
+                    <form asp-controller="Account" asp-action="QuickLogin" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="role" value="Admin" />
+                        <input type="hidden" name="returnUrl" value="@returnUrl" />
+                        <button type="submit" class="btn btn-sm btn-outline-dark w-100 text-start py-2 px-2 d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-crown text-warning"></i>
+                            <div>
+                                <div class="fw-bold" style="font-size: 0.8rem;">Admin</div>
+                                <div class="text-muted" style="font-size: 0.68rem;">Full ERP Access</div>
+                            </div>
+                        </button>
+                    </form>
+                </div>
+                <div class="col-6">
+                    <form asp-controller="Account" asp-action="QuickLogin" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="role" value="Accounts" />
+                        <input type="hidden" name="returnUrl" value="@returnUrl" />
+                        <button type="submit" class="btn btn-sm btn-outline-dark w-100 text-start py-2 px-2 d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-receipt text-danger"></i>
+                            <div>
+                                <div class="fw-bold" style="font-size: 0.8rem;">Accounts</div>
+                                <div class="text-muted" style="font-size: 0.68rem;">Invoices & Expenses</div>
+                            </div>
+                        </button>
+                    </form>
+                </div>
+                <div class="col-6">
+                    <form asp-controller="Account" asp-action="QuickLogin" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="role" value="Sales" />
+                        <input type="hidden" name="returnUrl" value="@returnUrl" />
+                        <button type="submit" class="btn btn-sm btn-outline-dark w-100 text-start py-2 px-2 d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-handshake text-success"></i>
+                            <div>
+                                <div class="fw-bold" style="font-size: 0.8rem;">Sales</div>
+                                <div class="text-muted" style="font-size: 0.68rem;">Quotes & Leads</div>
+                            </div>
+                        </button>
+                    </form>
+                </div>
+                <div class="col-6">
+                    <form asp-controller="Account" asp-action="QuickLogin" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="role" value="Inventory" />
+                        <input type="hidden" name="returnUrl" value="@returnUrl" />
+                        <button type="submit" class="btn btn-sm btn-outline-dark w-100 text-start py-2 px-2 d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-warehouse text-info"></i>
+                            <div>
+                                <div class="fw-bold" style="font-size: 0.8rem;">Inventory</div>
+                                <div class="text-muted" style="font-size: 0.68rem;">Milling & Stock</div>
+                            </div>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <div class="d-flex justify-content-center gap-2">
-            <a asp-controller="Admin" asp-action="Index" class="btn btn-emerald btn-sm">Return to Dashboard</a>
-            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary btn-sm">Switch Account</a>
+            <a asp-controller="Admin" asp-action="Index" class="btn btn-emerald btn-sm px-4">
+                <i class="fa-solid fa-arrow-left me-1"></i> Return to Dashboard
+            </a>
+            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary btn-sm px-3">
+                <i class="fa-solid fa-arrow-right-to-bracket me-1"></i> Sign In With Another Account
+            </a>
         </div>
     </div>
 </div>

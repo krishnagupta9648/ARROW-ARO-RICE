@@ -2,9 +2,27 @@
 @{
     ViewData["Title"] = $"{Model.Name} - Indian Rice Technical Specifications";
     var related = ViewBag.RelatedProducts as List<ARROW_ARO_RICE.Models.Product> ?? new List<ARROW_ARO_RICE.Models.Product>();
+
+    string GetDetailImg(ARROW_ARO_RICE.Models.Product p) {
+        if (!string.IsNullOrEmpty(p.ImageUrl) && p.ImageUrl != "/images/rice-placeholder.jpg") return p.ImageUrl;
+        return p.Code switch {
+            "RICE-1121-STM" => "/images/1121-steam.jpg",
+            "RICE-1121-GDS" => "/images/1121-golden-sella.jpg",
+            "RICE-1121-WTS" => "/images/1121-creamy-sella.jpg",
+            "RICE-1509-STM" => "/images/1509-steam.jpg",
+            "RICE-TRD-RAW" => "/images/traditional-raw.jpg",
+            "RICE-SUG-STM" => "/images/sugandha-steam.jpg",
+            "RICE-SHR-STM" => "/images/sharbati-sella.jpg",
+            "RICE-SNM-RAW" => "/images/sona-masoori.jpg",
+            "RICE-IR64-PB5" => "/images/ir64-parboiled.jpg",
+            "RICE-PR11-STM" => "/images/pr11-steam.jpg",
+            "RICE-BRK-100" => "/images/broken-rice.jpg",
+            _ => "/images/1121-steam.jpg"
+        };
+    }
 }
 
-<div class="py-5" style="background: linear-gradient(135deg, #091f13, #154e29); color: #fff;">
+<div class="py-5" style="background: linear-gradient(135deg, rgba(9, 31, 19, 0.92), rgba(21, 78, 41, 0.88)), url('/images/hero-banner.jpg') center/cover no-repeat; color: #fff;">
     <div class="container-xl">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
@@ -23,6 +41,31 @@
     <div class="row g-5">
         <!-- Main Details & Technical Specs Table -->
         <div class="col-lg-8">
+            <!-- Product Photo & Quality Showcase Card -->
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 bg-white">
+                <div class="position-relative" style="height: 380px; background: #071f11;">
+                    <img src="@GetDetailImg(Model)" alt="@Model.Name" class="w-100 h-100" style="object-fit: cover;" />
+                    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to top, rgba(10, 41, 22, 0.88) 0%, rgba(10, 41, 22, 0.15) 50%, rgba(0, 0, 0, 0.3) 100%);"></div>
+                    <div class="position-absolute top-0 start-0 p-3 d-flex flex-wrap gap-2">
+                        <span class="badge bg-warning text-dark font-monospace px-3 py-2 fs-6 shadow">
+                            <i class="fa-solid fa-certificate me-1"></i> APEDA Star Grade
+                        </span>
+                        <span class="badge bg-dark bg-opacity-75 text-white border border-white border-opacity-25 px-3 py-2 fs-6">
+                            <i class="fa-solid fa-ruler-horizontal text-warning me-1"></i> @Model.AverageLengthMm mm AGL
+                        </span>
+                    </div>
+                    <div class="position-absolute bottom-0 start-0 p-4 text-white w-100 d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-2">
+                        <div>
+                            <div class="text-warning small text-uppercase fw-bold" style="letter-spacing: 1px;">Authentic Milling Guarantee</div>
+                            <h3 class="font-serif text-white mb-1">@Model.Name</h3>
+                            <div class="text-white-75 small">Taraori Basmati Belt, Karnal (Haryana) &bull; 100% Buhler Optical Sortex Cleaned</div>
+                        </div>
+                        <span class="badge bg-success bg-opacity-90 px-3 py-2">
+                            <i class="fa-solid fa-shield-halved me-1"></i> Pre-Shipment SGS Verified
+                        </span>
+                    </div>
+                </div>
+            </div>
             <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 mb-5 bg-white">
                 <h3 class="font-serif text-dark mb-4">Detailed Technical Laboratory Parameters</h3>
                 <p class="text-muted">Conforming to APEDA (Agricultural and Processed Food Products Export Development Authority) and international food safety codex standards.</p>

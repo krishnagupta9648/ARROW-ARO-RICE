@@ -66,6 +66,7 @@ public class DashboardViewModel
     public List<ExportShipment> ActiveShipments { get; set; } = new();
     public List<SalesOrder> RecentOrders { get; set; } = new();
     public List<ActivityLog> RecentActivities { get; set; } = new();
+    public List<ActivityLog> AllActivities { get; set; } = new();
     public List<InventoryStock> LowStockAlerts { get; set; } = new();
 }
 

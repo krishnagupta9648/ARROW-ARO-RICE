@@ -195,6 +195,71 @@ public class QuotationsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Revise(int id)
+    {
+        var original = await _db.Quotations
+            .Include(q => q.Items)
+            .FirstOrDefaultAsync(q => q.Id == id);
+
+        if (original == null) return NotFound();
+
+        var baseNumber = original.QuotationNumber.Split("-REV")[0];
+        var revisionCount = await _db.Quotations.CountAsync(q => q.QuotationNumber.StartsWith(baseNumber + "-REV"));
+        var newNumber = $"{baseNumber}-REV{revisionCount + 1}";
+
+        var revised = new Quotation
+        {
+            QuotationNumber = newNumber,
+            InquiryId = original.InquiryId,
+            CustomerId = original.CustomerId,
+            CustomerName = original.CustomerName,
+            CustomerEmail = original.CustomerEmail,
+            CustomerCountry = original.CustomerCountry,
+            DestinationPort = original.DestinationPort,
+            PortOfLoading = original.PortOfLoading,
+            IncoTerm = original.IncoTerm,
+            Currency = original.Currency,
+            PaymentTerms = original.PaymentTerms,
+            InspectionAgency = original.InspectionAgency,
+            TermsAndConditions = original.TermsAndConditions,
+            BankDetails = original.BankDetails,
+            QuotationDate = DateTime.UtcNow,
+            ValidUntil = DateTime.UtcNow.AddDays(15),
+            Status = QuotationStatus.Draft,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        foreach (var item in original.Items)
+        {
+            revised.Items.Add(new QuotationItem
+            {
+                ProductId = item.ProductId,
+                ProductName = item.ProductName,
+                SpecificationsSummary = item.SpecificationsSummary,
+                QuantityMT = item.QuantityMT,
+                UnitPricePerMT = item.UnitPricePerMT,
+                TotalAmount = item.TotalAmount,
+                Packaging = item.Packaging
+            });
+        }
+
+        _db.Quotations.Add(revised);
+        _db.ActivityLogs.Add(new ActivityLog
+        {
+            UserName = User.Identity?.Name ?? "User",
+            Action = "Quotation Revised",
+            Module = "Quotation",
+            Details = $"Created revised quotation {newNumber} from original {original.QuotationNumber}.",
+            Timestamp = DateTime.UtcNow
+        });
+
+        await _db.SaveChangesAsync();
+        TempData["SuccessMessage"] = $"Created revised quotation #{newNumber} as Draft.";
+        return RedirectToAction(nameof(Details), new { id = revised.Id });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> ConvertToSalesOrder(int id)
     {
         var quotation = await _db.Quotations

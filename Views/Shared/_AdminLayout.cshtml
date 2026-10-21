@@ -44,22 +44,31 @@
             </a>
 
             <!-- CRM & SALES -->
-            <div class="nav-section-title">CRM & Leads</div>
-            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Inquiries" ? "active" : "")" 
-               asp-controller="Inquiries" asp-action="Index">
-                <i class="fa-solid fa-envelope-open-text"></i> Buyer Inquiries / RFQ
-            </a>
-            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Customers" ? "active" : "")" 
-               asp-controller="Customers" asp-action="Index">
-                <i class="fa-solid fa-users"></i> International Buyers
-            </a>
+            @if (User.IsInRole("Admin") || User.IsInRole("Sales") || User.IsInRole("Accounts"))
+            {
+                <div class="nav-section-title">CRM & Leads</div>
+                @if (User.IsInRole("Admin") || User.IsInRole("Sales"))
+                {
+                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Inquiries" ? "active" : "")" 
+                       asp-controller="Inquiries" asp-action="Index">
+                        <i class="fa-solid fa-envelope-open-text"></i> Buyer Inquiries / RFQ
+                    </a>
+                }
+                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Customers" ? "active" : "")" 
+                   asp-controller="Customers" asp-action="Index">
+                    <i class="fa-solid fa-users"></i> International Buyers
+                </a>
+            }
 
             <!-- TRADING & ORDERS -->
             <div class="nav-section-title">Trade & Orders</div>
-            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Quotations" ? "active" : "")" 
-               asp-controller="Quotations" asp-action="Index">
-                <i class="fa-solid fa-file-invoice-dollar"></i> Quotations (Proforma)
-            </a>
+            @if (User.IsInRole("Admin") || User.IsInRole("Sales"))
+            {
+                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Quotations" ? "active" : "")" 
+                   asp-controller="Quotations" asp-action="Index">
+                    <i class="fa-solid fa-file-invoice-dollar"></i> Quotations (Proforma)
+                </a>
+            }
             <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "SalesOrders" && ViewContext.RouteData.Values["Action"]?.ToString() != "PurchaseOrders" ? "active" : "")" 
                asp-controller="SalesOrders" asp-action="Index">
                 <i class="fa-solid fa-box-archive"></i> Sales Orders
@@ -70,38 +79,47 @@
             </a>
 
             <!-- LOGISTICS & INVENTORY -->
-            <div class="nav-section-title">Logistics & Warehouses</div>
-            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Products" ? "active" : "")" 
-               asp-controller="Products" asp-action="Index">
-                <i class="fa-solid fa-seedling"></i> Rice Catalog & Specs
-            </a>
-            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Inventory" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" 
-               asp-controller="Inventory" asp-action="Index">
-                <i class="fa-solid fa-warehouse"></i> Warehouse Stocks
-            </a>
-            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Inventory" && ViewContext.RouteData.Values["Action"]?.ToString() == "Transactions" ? "active" : "")" 
-               asp-controller="Inventory" asp-action="Transactions">
-                <i class="fa-solid fa-right-left"></i> Stock Movement Ledger
-            </a>
-            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Shipments" ? "active" : "")" 
-               asp-controller="Shipments" asp-action="Index">
-                <i class="fa-solid fa-ship"></i> Export Shipments
-            </a>
+            @if (User.IsInRole("Admin") || User.IsInRole("Inventory") || User.IsInRole("Sales"))
+            {
+                <div class="nav-section-title">Logistics & Warehouses</div>
+                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Products" ? "active" : "")" 
+                   asp-controller="Products" asp-action="Index">
+                    <i class="fa-solid fa-seedling"></i> Rice Catalog & Specs
+                </a>
+                @if (User.IsInRole("Admin") || User.IsInRole("Inventory"))
+                {
+                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Inventory" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" 
+                       asp-controller="Inventory" asp-action="Index">
+                        <i class="fa-solid fa-warehouse"></i> Warehouse Stocks
+                    </a>
+                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Inventory" && ViewContext.RouteData.Values["Action"]?.ToString() == "Transactions" ? "active" : "")" 
+                       asp-controller="Inventory" asp-action="Transactions">
+                        <i class="fa-solid fa-right-left"></i> Stock Movement Ledger
+                    </a>
+                }
+                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Shipments" ? "active" : "")" 
+                   asp-controller="Shipments" asp-action="Index">
+                    <i class="fa-solid fa-ship"></i> Export Shipments
+                </a>
+            }
 
             <!-- FINANCE & PROFITABILITY -->
-            <div class="nav-section-title">Finance & Profitability</div>
-            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Finance" && ViewContext.RouteData.Values["Action"]?.ToString() == "Invoices" ? "active" : "")" 
-               asp-controller="Finance" asp-action="Invoices">
-                <i class="fa-solid fa-receipt"></i> Commercial Invoices
-            </a>
-            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Finance" && ViewContext.RouteData.Values["Action"]?.ToString() == "Expenses" ? "active" : "")" 
-               asp-controller="Finance" asp-action="Expenses">
-                <i class="fa-solid fa-money-bill-wave"></i> Order-Wise Expenses
-            </a>
-            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Finance" && ViewContext.RouteData.Values["Action"]?.ToString() == "Profitability" ? "active" : "")" 
-               asp-controller="Finance" asp-action="Profitability">
-                <i class="fa-solid fa-chart-line"></i> Profitability Reports
-            </a>
+            @if (User.IsInRole("Admin") || User.IsInRole("Accounts"))
+            {
+                <div class="nav-section-title">Finance & Profitability</div>
+                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Finance" && ViewContext.RouteData.Values["Action"]?.ToString() == "Invoices" ? "active" : "")" 
+                   asp-controller="Finance" asp-action="Invoices">
+                    <i class="fa-solid fa-receipt"></i> Commercial Invoices
+                </a>
+                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Finance" && ViewContext.RouteData.Values["Action"]?.ToString() == "Expenses" ? "active" : "")" 
+                   asp-controller="Finance" asp-action="Expenses">
+                    <i class="fa-solid fa-money-bill-wave"></i> Order-Wise Expenses
+                </a>
+                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Finance" && ViewContext.RouteData.Values["Action"]?.ToString() == "Profitability" ? "active" : "")" 
+                   asp-controller="Finance" asp-action="Profitability">
+                    <i class="fa-solid fa-chart-line"></i> Profitability Reports
+                </a>
+            }
 
             <!-- SYSTEM & ADMINISTRATION -->
             @if (User.IsInRole("Admin"))
@@ -150,13 +168,80 @@
                 <span class="text-muted d-none d-md-inline" style="font-size: 0.85rem;">| Rice Export Management System</span>
             </div>
 
-            <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2">
+                <!-- Role Switcher Dropdown (Demo Helper) -->
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-dark dropdown-toggle d-flex align-items-center gap-2 py-1 px-2" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.8rem;">
+                        <i class="fa-solid fa-user-shield text-warning"></i>
+                        <span class="d-none d-lg-inline text-muted">Role:</span>
+                        <strong class="text-dark">@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</strong>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 p-2" style="min-width: 230px;">
+                        <li><h6 class="dropdown-header text-uppercase text-muted px-2 py-1" style="font-size: 0.68rem; letter-spacing: 0.5px;">Switch Active ERP Role</h6></li>
+                        <li>
+                            <form asp-controller="Account" asp-action="QuickLogin" method="post" class="m-0">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="role" value="Admin" />
+                                <button type="submit" class="dropdown-item rounded-2 py-2 d-flex align-items-center gap-2 @(User.IsInRole("Admin") ? "active bg-emerald text-white" : "")">
+                                    <i class="fa-solid fa-crown text-warning"></i>
+                                    <div>
+                                        <div class="fw-bold" style="font-size: 0.82rem;">Admin (Rajesh Sharma)</div>
+                                        <div class="small opacity-75" style="font-size: 0.7rem;">Executive & Full Control</div>
+                                    </div>
+                                </button>
+                            </form>
+                        </li>
+                        <li>
+                            <form asp-controller="Account" asp-action="QuickLogin" method="post" class="m-0">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="role" value="Sales" />
+                                <button type="submit" class="dropdown-item rounded-2 py-2 d-flex align-items-center gap-2 @(User.IsInRole("Sales") ? "active bg-emerald text-white" : "")">
+                                    <i class="fa-solid fa-handshake text-success"></i>
+                                    <div>
+                                        <div class="fw-bold" style="font-size: 0.82rem;">Sales (Tariq Mansoor)</div>
+                                        <div class="small opacity-75" style="font-size: 0.7rem;">Inquiries & Quotations</div>
+                                    </div>
+                                </button>
+                            </form>
+                        </li>
+                        <li>
+                            <form asp-controller="Account" asp-action="QuickLogin" method="post" class="m-0">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="role" value="Inventory" />
+                                <button type="submit" class="dropdown-item rounded-2 py-2 d-flex align-items-center gap-2 @(User.IsInRole("Inventory") ? "active bg-emerald text-white" : "")">
+                                    <i class="fa-solid fa-warehouse text-info"></i>
+                                    <div>
+                                        <div class="fw-bold" style="font-size: 0.82rem;">Inventory (Vikram Singh)</div>
+                                        <div class="small opacity-75" style="font-size: 0.7rem;">Milling & Warehouses</div>
+                                    </div>
+                                </button>
+                            </form>
+                        </li>
+                        <li>
+                            <form asp-controller="Account" asp-action="QuickLogin" method="post" class="m-0">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="role" value="Accounts" />
+                                <button type="submit" class="dropdown-item rounded-2 py-2 d-flex align-items-center gap-2 @(User.IsInRole("Accounts") ? "active bg-emerald text-white" : "")">
+                                    <i class="fa-solid fa-receipt text-danger"></i>
+                                    <div>
+                                        <div class="fw-bold" style="font-size: 0.82rem;">Accounts (Pooja Verma)</div>
+                                        <div class="small opacity-75" style="font-size: 0.7rem;">Invoices & Profitability</div>
+                                    </div>
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+
                 <a asp-controller="Home" asp-action="Index" target="_blank" class="btn btn-sm btn-outline-secondary d-none d-sm-inline-flex align-items-center gap-1">
                     <i class="fa-solid fa-arrow-up-right-from-square"></i> Public Website
                 </a>
-                <a asp-controller="Quotations" asp-action="Create" class="btn btn-sm btn-gold d-inline-flex align-items-center gap-1">
-                    <i class="fa-solid fa-plus"></i> New Quotation
-                </a>
+                @if (User.IsInRole("Admin") || User.IsInRole("Sales"))
+                {
+                    <a asp-controller="Quotations" asp-action="Create" class="btn btn-sm btn-gold d-inline-flex align-items-center gap-1">
+                        <i class="fa-solid fa-plus"></i> New Quotation
+                    </a>
+                }
             </div>
         </header>
 

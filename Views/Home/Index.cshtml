@@ -3,6 +3,24 @@
     ViewData["Title"] = "Premium Indian Basmati & Non-Basmati Rice Exporters";
     var featured = ViewBag.FeaturedProducts as List<Product> ?? new List<Product>();
     var siteSettings = DbContext.WebsiteSettings.FirstOrDefault() ?? new ARROW_ARO_RICE.Models.WebsiteSetting();
+
+    string GetProductImg(Product p) {
+        if (!string.IsNullOrEmpty(p.ImageUrl) && p.ImageUrl != "/images/rice-placeholder.jpg") return p.ImageUrl;
+        return p.Code switch {
+            "RICE-1121-STM" => "/images/1121-steam.jpg",
+            "RICE-1121-GDS" => "/images/1121-golden-sella.jpg",
+            "RICE-1121-WTS" => "/images/1121-creamy-sella.jpg",
+            "RICE-1509-STM" => "/images/1509-steam.jpg",
+            "RICE-TRD-RAW" => "/images/traditional-raw.jpg",
+            "RICE-SUG-STM" => "/images/sugandha-steam.jpg",
+            "RICE-SHR-STM" => "/images/sharbati-sella.jpg",
+            "RICE-SNM-RAW" => "/images/sona-masoori.jpg",
+            "RICE-IR64-PB5" => "/images/ir64-parboiled.jpg",
+            "RICE-PR11-STM" => "/images/pr11-steam.jpg",
+            "RICE-BRK-100" => "/images/broken-rice.jpg",
+            _ => "/images/1121-steam.jpg"
+        };
+    }
 }
 
 <!-- Hero Section -->
@@ -42,6 +60,15 @@
             <!-- Quick Shipment Tracker Card -->
             <div class="col-lg-5">
                 <div class="hero-card">
+                    <!-- Hero Visual Media Header -->
+                    <div class="position-relative rounded-3 overflow-hidden mb-3 border border-white border-opacity-15 shadow-sm" style="height: 140px;">
+                        <img src="/images/hero-banner.jpg" alt="Indian Basmati Export" class="w-100 h-100" style="object-fit: cover;" />
+                        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to top, rgba(6, 26, 14, 0.92) 0%, rgba(6, 26, 14, 0.25) 60%, transparent 100%);"></div>
+                        <div class="position-absolute bottom-0 start-0 p-3 text-white d-flex align-items-center justify-content-between w-100">
+                            <span class="badge bg-warning text-dark font-monospace"><i class="fa-solid fa-ship me-1"></i> Mundra & JNPT Direct Sailings</span>
+                            <span class="small text-white-75" style="font-size: 0.75rem;"><i class="fa-solid fa-circle text-success me-1" style="font-size: 0.55rem;"></i> Port Operations Active</span>
+                        </div>
+                    </div>
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <h4 class="text-white mb-0 font-serif fs-5"><i class="fa-solid fa-ship text-warning me-2"></i> Live Container Tracking</h4>
                         <span class="badge bg-warning text-dark text-uppercase">B2B Portal</span>
@@ -119,11 +146,15 @@
             {
                 <div class="col-lg-4 col-md-6">
                     <div class="product-card">
-                        <div class="product-header">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="product-image-container">
+                            <img src="@GetProductImg(prod)" alt="@prod.Name" loading="lazy" />
+                            <div class="product-image-overlay"></div>
+                            <div class="product-image-badges">
                                 <span class="category-badge">@prod.Category</span>
-                                <span class="text-white-50 small"><i class="fa-solid fa-barcode me-1"></i> @prod.Code</span>
+                                <span class="product-code-tag"><i class="fa-solid fa-barcode me-1 text-warning"></i> @prod.Code</span>
                             </div>
+                        </div>
+                        <div class="product-header">
                             <h4 class="text-white fs-5 font-serif mb-1">@prod.Name</h4>
                             <div class="text-warning small"><i class="fa-solid fa-certificate me-1"></i> @prod.ProcessingType</div>
                         </div>
@@ -190,6 +221,9 @@
 
             <div class="col-lg-4 col-md-6">
                 <div class="feature-card">
+                    <div class="rounded-3 overflow-hidden mb-3" style="height: 140px;">
+                        <img src="/images/about-milling-plant.jpg" alt="Automated Buhler Sortex Milling" class="w-100 h-100" style="object-fit: cover;" />
+                    </div>
                     <div class="feature-icon-wrapper">
                         <i class="fa-solid fa-microchip"></i>
                     </div>
@@ -200,6 +234,9 @@
 
             <div class="col-lg-4 col-md-6">
                 <div class="feature-card">
+                    <div class="rounded-3 overflow-hidden mb-3" style="height: 140px;">
+                        <img src="/images/export-packaging.jpg" alt="Private Label & Custom Packaging" class="w-100 h-100" style="object-fit: cover;" />
+                    </div>
                     <div class="feature-icon-wrapper">
                         <i class="fa-solid fa-box-open"></i>
                     </div>
@@ -220,6 +257,9 @@
 
             <div class="col-lg-4 col-md-6">
                 <div class="feature-card">
+                    <div class="rounded-3 overflow-hidden mb-3" style="height: 140px;">
+                        <img src="/images/export-shipping-port.jpg" alt="Mundra & JNPT Port Operations" class="w-100 h-100" style="object-fit: cover;" />
+                    </div>
                     <div class="feature-icon-wrapper">
                         <i class="fa-solid fa-anchor"></i>
                     </div>
@@ -242,7 +282,7 @@
 </section>
 
 <!-- Global Export Ports & Destinations Showcase -->
-<section class="py-5" style="background: linear-gradient(145deg, #091f13 0%, #0f351e 100%); color: #ffffff;">
+<section class="py-5" style="background: linear-gradient(145deg, rgba(7, 26, 14, 0.94) 0%, rgba(13, 46, 26, 0.91) 100%), url('/images/export-shipping-port.jpg') center/cover no-repeat; color: #ffffff;">
     <div class="container-xl">
         <div class="row align-items-center g-5">
             <div class="col-lg-6">

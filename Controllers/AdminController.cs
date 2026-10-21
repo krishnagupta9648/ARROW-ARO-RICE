@@ -56,6 +56,11 @@ public class AdminController : Controller
             .Take(8)
             .ToListAsync();
 
+        var allActivities = await _db.ActivityLogs
+            .OrderByDescending(a => a.Timestamp)
+            .Take(100)
+            .ToListAsync();
+
         var lowStockAlerts = await _db.InventoryStocks
             .Include(s => s.Product)
             .Include(s => s.Warehouse)
@@ -77,6 +82,7 @@ public class AdminController : Controller
             ActiveShipments = activeShipments,
             RecentOrders = recentOrders,
             RecentActivities = recentActivities,
+            AllActivities = allActivities,
             LowStockAlerts = lowStockAlerts
         };
 
@@ -109,8 +115,26 @@ public class AdminController : Controller
         ViewBag.SearchTerm = search ?? "";
         ViewBag.CurrentPage = page;
         ViewBag.TotalPages = (int)Math.Ceiling(total / (double)pageSize);
+        ViewBag.TotalCount = total;
 
         return View(logs);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetActivityLogsJson(string? module, string? search, int limit = 50)
+    {
+        var query = _db.ActivityLogs.AsQueryable();
+        if (!string.IsNullOrEmpty(module) && module != "All")
+        {
+            query = query.Where(a => a.Module == module);
+        }
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var s = search.Trim().ToLower();
+            query = query.Where(a => a.Details.ToLower().Contains(s) || a.UserName.ToLower().Contains(s) || a.Action.ToLower().Contains(s));
+        }
+        var logs = await query.OrderByDescending(a => a.Timestamp).Take(limit).ToListAsync();
+        return Json(logs);
     }
 
     [Authorize(Roles = "Admin")]

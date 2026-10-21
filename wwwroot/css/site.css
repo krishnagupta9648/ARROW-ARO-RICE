@@ -247,7 +247,9 @@ h6 {
 
 /* Hero Section */
 .hero-wrapper {
-    background: linear-gradient(145deg, #071f11 0%, #0d381c 50%, #154e29 100%);
+    background: linear-gradient(135deg, rgba(6, 26, 14, 0.90) 0%, rgba(10, 42, 23, 0.83) 50%, rgba(18, 71, 38, 0.88) 100%),
+                url('/images/hero-banner.jpg') center/cover no-repeat;
+    background-attachment: fixed;
     color: #ffffff;
     padding: 90px 0 100px;
     position: relative;
@@ -261,8 +263,8 @@ h6 {
     right: 0;
     bottom: 0;
     left: 0;
-    background: radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.18), transparent 50%),
-        radial-gradient(circle at 20% 80%, rgba(22, 101, 52, 0.4), transparent 60%);
+    background: radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.22), transparent 50%),
+        radial-gradient(circle at 20% 80%, rgba(22, 101, 52, 0.35), transparent 60%);
     pointer-events: none;
 }
 
@@ -369,10 +371,57 @@ h6 {
     border-color: rgba(212, 175, 55, 0.5);
 }
 
+.product-image-container {
+    position: relative;
+    height: 195px;
+    width: 100%;
+    overflow: hidden;
+    background: #071f11;
+}
+
+.product-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.product-card:hover .product-image-container img {
+    transform: scale(1.08);
+}
+
+.product-image-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(10, 41, 22, 0.75) 0%, rgba(10, 41, 22, 0.15) 50%, rgba(0, 0, 0, 0.25) 100%);
+    pointer-events: none;
+}
+
+.product-image-badges {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 2;
+}
+
+.product-code-tag {
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+    color: #ffffff;
+    font-size: 0.72rem;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 .product-header {
     background: linear-gradient(135deg, #0f381e, #0a2916);
     color: #fff;
-    padding: 20px;
+    padding: 16px 20px;
     position: relative;
 }
 

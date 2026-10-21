@@ -132,6 +132,44 @@ public class SalesOrdersController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateSupplier(string name, string? contactPerson, string phone, string? email, string location, string supplierType, string? gstOrTaxNumber)
+    {
+        if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(phone))
+        {
+            TempData["ErrorMessage"] = "Supplier name and phone are required.";
+            return RedirectToAction(nameof(PurchaseOrders));
+        }
+
+        var supplier = new Supplier
+        {
+            Name = name.Trim(),
+            ContactPerson = contactPerson?.Trim() ?? string.Empty,
+            Phone = phone.Trim(),
+            Email = email?.Trim(),
+            Location = location?.Trim() ?? "Haryana / Punjab",
+            SupplierType = supplierType ?? "Mandi Agent",
+            GstOrTaxNumber = gstOrTaxNumber?.Trim(),
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _db.Suppliers.Add(supplier);
+        _db.ActivityLogs.Add(new ActivityLog
+        {
+            UserName = User.Identity?.Name ?? "User",
+            Action = "Supplier Added",
+            Module = "Procurement",
+            Details = $"Added new agricultural supplier {supplier.Name} ({supplier.SupplierType}).",
+            Timestamp = DateTime.UtcNow
+        });
+
+        await _db.SaveChangesAsync();
+        TempData["SuccessMessage"] = $"Supplier '{supplier.Name}' registered successfully.";
+        return RedirectToAction(nameof(PurchaseOrders));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
         var order = await _db.SalesOrders

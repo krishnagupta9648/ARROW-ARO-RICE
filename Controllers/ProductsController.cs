@@ -16,15 +16,27 @@ public class ProductsController : Controller
         _db = db;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? status)
     {
-        var products = await _db.Products
+        var allProducts = await _db.Products
             .Include(p => p.InventoryStocks)
             .OrderBy(p => p.Category)
             .ThenBy(p => p.Name)
             .ToListAsync();
 
-        return View(products);
+        ViewBag.TotalCount = allProducts.Count;
+        ViewBag.ActiveCount = allProducts.Count(p => p.IsActive);
+        ViewBag.ArchivedCount = allProducts.Count(p => !p.IsActive);
+        ViewBag.CurrentStatus = status ?? "all";
+
+        var filtered = status?.ToLower() switch
+        {
+            "active" => allProducts.Where(p => p.IsActive).ToList(),
+            "archived" => allProducts.Where(p => !p.IsActive).ToList(),
+            _ => allProducts
+        };
+
+        return View(filtered);
     }
 
     public IActionResult Create()
@@ -100,48 +112,29 @@ public class ProductsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> ToggleActive(int id)
     {
-        var product = await _db.Products
-            .Include(p => p.InventoryStocks)
-            .FirstOrDefaultAsync(p => p.Id == id);
-
+        var product = await _db.Products.FindAsync(id);
         if (product == null) return NotFound();
 
-        // Check if referenced in QuotationItems or SalesOrderItems
-        var inQuotes = await _db.QuotationItems.AnyAsync(qi => qi.ProductId == id);
-        var inOrders = await _db.SalesOrderItems.AnyAsync(soi => soi.ProductId == id);
-
-        if (inQuotes || inOrders)
+        product.IsActive = !product.IsActive;
+        if (!product.IsActive)
         {
-            // Soft delete by deactivating to preserve audit and transaction history
-            product.IsActive = false;
             product.IsFeatured = false;
-            await _db.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"Product '{product.Name}' is referenced in trade records and has been deactivated/archived.";
         }
-        else
-        {
-            // Hard delete
-            if (product.InventoryStocks.Any())
-            {
-                _db.InventoryStocks.RemoveRange(product.InventoryStocks);
-            }
-            _db.Products.Remove(product);
-            await _db.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"Product '{product.Name}' was permanently deleted.";
-        }
+        await _db.SaveChangesAsync();
 
         _db.ActivityLogs.Add(new ActivityLog
         {
             UserName = User.Identity?.Name ?? "Admin",
-            Action = "Product Deleted",
+            Action = product.IsActive ? "Product Activated" : "Product Archived",
             Module = "Product",
-            Details = $"Product {product.Name} ({product.Code}) deleted/deactivated.",
+            Details = $"Product {product.Name} ({product.Code}) marked as {(product.IsActive ? "Active" : "Archived")}.",
             Timestamp = DateTime.UtcNow
         });
         await _db.SaveChangesAsync();
 
+        TempData["SuccessMessage"] = $"Product '{product.Name}' is now {(product.IsActive ? "Active" : "Archived")}.";
         return RedirectToAction(nameof(Index));
     }
 
@@ -156,6 +149,106 @@ public class ProductsController : Controller
         await _db.SaveChangesAsync();
 
         TempData["SuccessMessage"] = $"Product '{product.Name}' featured status set to {(product.IsFeatured ? "Featured on Website" : "Standard")}.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var product = await _db.Products
+            .Include(p => p.InventoryStocks)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (product == null) return NotFound();
+
+        // Check if referenced in trade orders, quotes, POs, or stock transactions
+        var inQuotes = await _db.QuotationItems.AnyAsync(qi => qi.ProductId == id);
+        var inOrders = await _db.SalesOrderItems.AnyAsync(soi => soi.ProductId == id);
+        var inPurchaseOrders = await _db.PurchaseOrders.AnyAsync(po => po.ProductId == id);
+        var inTransactions = await _db.StockTransactions.AnyAsync(st => st.ProductId == id);
+
+        var hasTradeHistory = inQuotes || inOrders || inPurchaseOrders || inTransactions;
+
+        if (hasTradeHistory)
+        {
+            if (product.IsActive)
+            {
+                // Soft delete by deactivating to preserve audit and transaction history
+                product.IsActive = false;
+                product.IsFeatured = false;
+                await _db.SaveChangesAsync();
+
+                _db.ActivityLogs.Add(new ActivityLog
+                {
+                    UserName = User.Identity?.Name ?? "Admin",
+                    Action = "Product Archived",
+                    Module = "Product",
+                    Details = $"Product {product.Name} ({product.Code}) archived due to linked trade records.",
+                    Timestamp = DateTime.UtcNow
+                });
+                await _db.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = $"Product '{product.Name}' is referenced in official trade records/orders and has been deactivated and archived (hidden from public catalog).";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = $"Product '{product.Name}' cannot be permanently erased because historical sales orders or purchase contracts reference it. It remains safely archived.";
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        try
+        {
+            // Safely unlink from Inquiries so buyer inquiry leads remain intact without FK violations
+            var linkedInquiries = await _db.Inquiries.Where(i => i.ProductId == id).ToListAsync();
+            foreach (var inq in linkedInquiries)
+            {
+                inq.ProductId = null;
+            }
+
+            // Remove associated warehouse inventory stock rows for this product
+            var stocks = await _db.InventoryStocks.Where(s => s.ProductId == id).ToListAsync();
+            if (stocks.Any())
+            {
+                _db.InventoryStocks.RemoveRange(stocks);
+            }
+
+            var productName = product.Name;
+            var productCode = product.Code;
+
+            _db.Products.Remove(product);
+
+            _db.ActivityLogs.Add(new ActivityLog
+            {
+                UserName = User.Identity?.Name ?? "Admin",
+                Action = "Product Deleted",
+                Module = "Product",
+                Details = $"Product {productName} ({productCode}) was permanently deleted.",
+                Timestamp = DateTime.UtcNow
+            });
+
+            await _db.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"Product '{productName}' was permanently deleted.";
+        }
+        catch (DbUpdateException)
+        {
+            // Robust fallback: If any database-level constraint prevents removal, safely soft-delete / archive
+            _db.ChangeTracker.Clear();
+            var fallback = await _db.Products.FindAsync(id);
+            if (fallback != null)
+            {
+                fallback.IsActive = false;
+                fallback.IsFeatured = false;
+                await _db.SaveChangesAsync();
+                TempData["SuccessMessage"] = $"Product '{fallback.Name}' has related business records and has been archived and hidden from public catalog.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Could not delete product due to database constraints.";
+            }
+        }
+
         return RedirectToAction(nameof(Index));
     }
 }

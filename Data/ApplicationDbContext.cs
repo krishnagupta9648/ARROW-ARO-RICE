@@ -71,6 +71,25 @@ public class ApplicationDbContext : DbContext
             .HasForeignKey(i => i.CustomerId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // Optional Product relationships with SetNull on delete
+        modelBuilder.Entity<Inquiry>()
+            .HasOne(i => i.Product)
+            .WithMany()
+            .HasForeignKey(i => i.ProductId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<QuotationItem>()
+            .HasOne(qi => qi.Product)
+            .WithMany()
+            .HasForeignKey(qi => qi.ProductId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<SalesOrderItem>()
+            .HasOne(soi => soi.Product)
+            .WithMany()
+            .HasForeignKey(soi => soi.ProductId)
+            .OnDelete(DeleteBehavior.SetNull);
+
         // InventoryStock composite key or unique index
         modelBuilder.Entity<InventoryStock>()
             .HasIndex(s => new { s.WarehouseId, s.ProductId, s.BatchNumber })

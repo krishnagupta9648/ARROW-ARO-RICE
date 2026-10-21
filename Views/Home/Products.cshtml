@@ -3,9 +3,27 @@
     ViewData["Title"] = "Export Product Catalog - Basmati & Non-Basmati Rice";
     var selectedCat = ViewBag.SelectedCategory as string ?? "All";
     var search = ViewBag.SearchTerm as string ?? "";
+
+    string GetProductImg(Product p) {
+        if (!string.IsNullOrEmpty(p.ImageUrl) && p.ImageUrl != "/images/rice-placeholder.jpg") return p.ImageUrl;
+        return p.Code switch {
+            "RICE-1121-STM" => "/images/1121-steam.jpg",
+            "RICE-1121-GDS" => "/images/1121-golden-sella.jpg",
+            "RICE-1121-WTS" => "/images/1121-creamy-sella.jpg",
+            "RICE-1509-STM" => "/images/1509-steam.jpg",
+            "RICE-TRD-RAW" => "/images/traditional-raw.jpg",
+            "RICE-SUG-STM" => "/images/sugandha-steam.jpg",
+            "RICE-SHR-STM" => "/images/sharbati-sella.jpg",
+            "RICE-SNM-RAW" => "/images/sona-masoori.jpg",
+            "RICE-IR64-PB5" => "/images/ir64-parboiled.jpg",
+            "RICE-PR11-STM" => "/images/pr11-steam.jpg",
+            "RICE-BRK-100" => "/images/broken-rice.jpg",
+            _ => "/images/1121-steam.jpg"
+        };
+    }
 }
 
-<div class="py-5" style="background: linear-gradient(135deg, #091f13, #154e29); color: #fff;">
+<div class="py-5" style="background: linear-gradient(135deg, rgba(9, 31, 19, 0.92), rgba(21, 78, 41, 0.88)), url('/images/hero-banner.jpg') center/cover no-repeat; color: #fff;">
     <div class="container-xl">
         <span class="badge bg-warning text-dark text-uppercase px-3 py-2 rounded-pill mb-2">B2B Product Portfolio</span>
         <h1 class="display-4 font-serif text-white mb-2">Export Rice Catalogue</h1>
@@ -71,11 +89,15 @@
             {
                 <div class="col-lg-4 col-md-6">
                     <div class="product-card">
-                        <div class="product-header">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="product-image-container">
+                            <img src="@GetProductImg(prod)" alt="@prod.Name" loading="lazy" />
+                            <div class="product-image-overlay"></div>
+                            <div class="product-image-badges">
                                 <span class="category-badge">@prod.Category</span>
-                                <span class="text-white-50 small"><i class="fa-solid fa-barcode me-1"></i> @prod.Code</span>
+                                <span class="product-code-tag"><i class="fa-solid fa-barcode me-1 text-warning"></i> @prod.Code</span>
                             </div>
+                        </div>
+                        <div class="product-header">
                             <h4 class="text-white fs-5 font-serif mb-1">@prod.Name</h4>
                             <div class="text-warning small"><i class="fa-solid fa-gear me-1"></i> @prod.ProcessingType</div>
                         </div>
