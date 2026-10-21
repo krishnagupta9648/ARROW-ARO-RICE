@@ -1,27 +1,5 @@
 {
-  "version": 2,
   "cleanUrls": true,
   "trailingSlash": false,
-  "outputDirectory": "dist",
-  "rewrites": [
-    { "source": "/api/inquiry", "destination": "/api/inquiry.js" },
-    { "source": "/Home/About", "destination": "/about.html" },
-    { "source": "/about", "destination": "/about.html" },
-    { "source": "/Home/Products", "destination": "/products.html" },
-    { "source": "/products", "destination": "/products.html" },
-    { "source": "/Home/Specifications", "destination": "/specifications.html" },
-    { "source": "/specifications", "destination": "/specifications.html" },
-    { "source": "/Home/ExportServices", "destination": "/export-services.html" },
-    { "source": "/export-services", "destination": "/export-services.html" },
-    { "source": "/Home/Quality", "destination": "/quality.html" },
-    { "source": "/quality", "destination": "/quality.html" },
-    { "source": "/Home/Contact", "destination": "/contact.html" },
-    { "source": "/contact", "destination": "/contact.html" },
-    { "source": "/Home/ProductDetail/:id", "destination": "/product-detail-:id.html" },
-    { "source": "/ProductDetail/:id", "destination": "/product-detail-:id.html" },
-    { "source": "/product/:id", "destination": "/product-detail-:id.html" },
-    { "source": "/Home", "destination": "/index.html" },
-    { "source": "/Home/Index", "destination": "/index.html" },
-    { "source": "/", "destination": "/index.html" }
-  ]
+  "outputDirectory": "dist"
 }
